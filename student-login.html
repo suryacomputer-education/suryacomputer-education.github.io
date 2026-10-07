@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Student Login | Surya Computer Of Education Center</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.auth-box{max-width:520px;margin:35px auto;padding:22px;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08)}.auth-box input{width:100%;box-sizing:border-box;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:8px}.auth-box button{padding:11px 18px;border:0;border-radius:8px;cursor:pointer;margin:6px 4px 6px 0}.msg{margin:12px 0;font-weight:600}.hidden{display:none}</style>    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head><body>
+<div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a></div><header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Student Portal</p></div></header>
+<nav class="navbar"><a href="index.html">Home</a><a href="courses.html">Courses</a>
+            <a href="digital-library.html">Digital Library</a><a href="result.html">Result</a><a href="certificate.html">Certificate</a><a href="student-login.html">Student Login</a><a href="contact.html">Contact</a></nav>
+<main class="auth-box"><div id="loginBox"><h2>🔐 Student Login</h2><p>Student ID और password से अपने portal में login करें।</p><input id="studentId" placeholder="Student ID" autocomplete="username"><input id="password" type="password" placeholder="Password" autocomplete="current-password"><button onclick="login()">🔐 Login</button><button onclick="showReset()">🔑 Forgot Password?</button><div id="loginMsg" class="msg"></div>
+<div style="text-align:center;margin:14px 0 4px;opacity:.7">— या —</div><div id="googleBtn" style="display:flex;justify-content:center;min-height:44px"></div><div id="googleMsg" class="msg" style="text-align:center"></div></div>
+<div id="resetBox" class="hidden"><h2>🔑 Reset Password</h2><p>सिर्फ़ अपना Student ID डालें। OTP आपके registered email पर भेजा जाएगा।</p><input id="resetId" placeholder="Student ID"><input id="resetEmail" type="email" placeholder="Registered Email" class="hidden"><button id="sendOtpBtn" onclick="sendOtp()">📩 Send OTP</button><button type="button" onclick="SuryaGoogleReset.open()">G Gmail से Reset करें</button><div id="otpStep" class="hidden"><input id="otp" placeholder="6-digit OTP"><input id="newPassword" type="password" placeholder="New Password (8+ characters)"><button onclick="resetPassword()">🔐 Reset Password</button><button id="resendBtn" onclick="sendOtp()" disabled>🔁 Resend OTP</button></div><button onclick="showLogin()">← Back to Login</button><div id="resetMsg" class="msg"></div></div></main>
+<footer><p>© 2026 Surya Computer Of Education Center | All Rights Reserved.</p></footer>
+<script src="assets/js/backend-config.js"></script>
+<script>
+const API=window.SURYA_DATABASE_API;
+async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});const d=await r.json();if(!d.success)throw new Error(d.message||'Request failed');return d;}
+function showReset(){loginBox.classList.add('hidden');resetBox.classList.remove('hidden');}
+function showLogin(){resetBox.classList.add('hidden');loginBox.classList.remove('hidden');}
+async function login(){try{loginMsg.textContent='⏳ Checking...';const d=await api({action:'studentLogin',studentId:studentId.value.trim(),password:password.value});sessionStorage.setItem('SURYA_STUDENT_TOKEN',d.token);sessionStorage.setItem('SURYA_STUDENT_ID',d.student['Student ID']);sessionStorage.setItem('SURYA_STUDENT_AUTH','true');location.href='student-dashboard.html';}catch(e){loginMsg.textContent='❌ '+e.message;}}
+let resendTimer=null;
+function startCooldown(){let n=60;const b=document.getElementById('resendBtn');if(!b)return;b.disabled=true;clearInterval(resendTimer);resendTimer=setInterval(()=>{n--;if(n<=0){clearInterval(resendTimer);b.disabled=false;b.textContent='🔁 Resend OTP';}else b.textContent='🔁 Resend OTP ('+n+'s)';},1000);}
+async function sendOtp(){try{resetMsg.textContent='⏳ Sending OTP...';const body={action:'studentRequestReset',studentId:resetId.value.trim()};if(!resetEmail.classList.contains('hidden')&&resetEmail.value.trim())body.email=resetEmail.value.trim();const d=await api(body);otpStep.classList.remove('hidden');resetMsg.textContent='✅ '+(d.message||'OTP sent. Check your registered email.');startCooldown();}catch(e){if(/email/i.test(e.message)&&resetEmail.classList.contains('hidden')){resetEmail.classList.remove('hidden');resetMsg.textContent='❌ '+e.message+' — registered email भी डालकर फिर Send OTP दबाएँ.';}else resetMsg.textContent='❌ '+e.message;}}
+async function resetPassword(){try{resetMsg.textContent='⏳ Resetting...';const rb={action:'studentResetPassword',studentId:resetId.value.trim(),otp:otp.value.trim(),newPassword:newPassword.value};if(!resetEmail.classList.contains('hidden')&&resetEmail.value.trim())rb.email=resetEmail.value.trim();await api(rb);resetMsg.textContent='✅ Password reset successfully. अब login करें.';setTimeout(showLogin,1200);}catch(e){resetMsg.textContent='❌ '+e.message;}}
+</script>    <script src="assets/js/google-login.js"></script>
+<script>SuryaGoogleLogin({mode:'student',buttonId:'googleBtn',messageId:'googleMsg'});</script>
+    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body></html>

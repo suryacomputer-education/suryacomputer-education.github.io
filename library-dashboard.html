@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Library Dashboard | Surya Computer</title><link rel="stylesheet" href="assets/css/style.css"><script src="assets/js/backend-config.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+.library-wrap{max-width:1100px;margin:34px auto;padding:20px}.library-hero{padding:34px;border-radius:20px;background:var(--card-bg,#fff);box-shadow:0 8px 28px rgba(0,0,0,.08);text-align:center}.library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}.library-card{padding:22px;border-radius:16px;background:var(--card-bg,#fff);box-shadow:0 6px 22px rgba(0,0,0,.08)}.library-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}.library-btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;background:#1f4f8f;color:#fff}.library-btn.alt{background:transparent;color:inherit;border:1px solid currentColor}.library-form{max-width:700px;margin:auto;display:grid;gap:12px}.library-form input,.library-form textarea,.library-form select{padding:12px;border-radius:10px;border:1px solid #ccc;width:100%;box-sizing:border-box}.library-status{margin-top:14px;padding:12px;border-radius:10px}.library-table{width:100%;border-collapse:collapse}.library-table th,.library-table td{padding:10px;border-bottom:1px solid #ddd;text-align:left}.lock{opacity:.7}
+.tile{display:block;text-decoration:none;color:inherit;text-align:center;transition:transform .15s}.tile:hover{transform:translateY(-3px)}.tile-ico{font-size:38px}.tile h3{margin:8px 0 4px}.tile-n{opacity:.7;font-size:.95rem}
+</style>
+<script src="assets/js/surya-format.js"></script>
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body><header class="site-header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA DIGITAL LIBRARY</h1><p>Library Student Dashboard</p></div></header><nav class="navbar"><a href="digital-library.html">Library Home</a><a href="#" id="logout">Logout</a></nav><main class="library-wrap"><section class="library-card"><h2 id="welcome">Loading...</h2><p id="account"></p><div id="feeBox" style="margin-top:16px"></div></section><section class="library-grid">
+<a class="library-card tile" href="library-section.html?s=pdf"><div class="tile-ico">📘</div><h3>Books / PDF</h3><div id="n_pdf" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=mock"><div class="tile-ico">📝</div><h3>Mock Tests</h3><div id="n_mock" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=cbt"><div class="tile-ico">🖥️</div><h3>CBT Examination</h3><div id="n_cbt" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=recorded"><div class="tile-ico">🎥</div><h3>Recorded Classes</h3><div id="n_recorded" class="tile-n">…</div></a>
+<a class="library-card tile" href="library-section.html?s=live"><div class="tile-ico">🔴</div><h3>Live Classes</h3><div id="n_live" class="tile-n">…</div></a>
+</section></main>
+<script>const API=window.SURYA_DATABASE_API,T=sessionStorage.getItem('SURYA_LIBRARY_TOKEN');if(!T)location.href='library-login.html';const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));async function post(body){
+ const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+ if(!r.ok)throw new Error('Network error: '+r.statusText);
+ return r.json();
+}
+
+function feeBox(student){
+ if(!student)return '<p>No membership data.</p>';
+ 
+ const total=Number(student.totalFee||0);
+ const paid=Number(student.paid||0);
+ const due=Math.max(0,total-paid);
+ const status=String(student.membershipStatus||'').toUpperCase();
+ const isActive=status==='ACTIVE';
+ 
+ let statusColor='#666',statusEmoji='ℹ️';
+ if(isActive){statusColor='#16823b';statusEmoji='✅';}
+ else if(status==='EXPIRED'){statusColor='#c7254e';statusEmoji='⏰';}
+ else if(status==='PENDING_VERIFICATION'){statusColor='#ff9800';statusEmoji='⏳';}
+ 
+ const payUI=due>0?`
+  <div style="margin-top:12px;padding:14px;background:#f5f5f5;border-radius:10px">
+   <b>💳 Payment Required</b>
+   <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+    <input id="payAmount" type="number" min="1" max="${due}" value="${due}" style="max-width:120px;padding:8px;border:1px solid #ccc;border-radius:6px">
+    <button id="payBtn" class="library-btn" onclick="beginMembershipPayment()">Pay ₹${due}</button>
+   </div>
+   <div id="upiBox" style="margin-top:8px"></div>
+  </div>
+ `:total>0?`
+  <div style="margin-top:8px;color:#16823b">✅ Fully Paid — All content unlocked</div>
+ `:`
+  <div style="margin-top:8px;color:#ff9800">⚠️ No fee configured yet</div>
+ `;
+ 
+ const payments=Array.isArray(student.payments)?student.payments:[];
+ const payTable=payments.length?`
+  <table class="library-table" style="width:100%;margin-top:10px">
+   <thead><tr style="border-bottom:2px solid #ddd">
+    <th style="padding:8px">Receipt</th><th>Amount</th><th>Mode</th><th>Status</th><th>Date</th>
+   </tr></thead>
+   <tbody>
+    ${payments.map(p=>`<tr style="border-bottom:1px solid #eee">
+     <td>${esc(p.receiptNumber||p.paymentId||'—')}</td>
+     <td>₹${Number(p.amount||0).toLocaleString('en-IN')}</td>
+     <td>${esc(p.mode||'—')}</td>
+     <td><span style="padding:4px 8px;border-radius:4px;background:${p.status==='SUCCESS'?'#d4edda':p.status==='PENDING'?'#fff3cd':'#f8d7da'};color:${p.status==='SUCCESS'?'#155724':p.status==='PENDING'?'#856404':'#721c24'}">${esc(p.status||'—')}</span></td>
+     <td>${esc(formatSuryaDateTime(p.date)||'—')}</td>
+    </tr>`).join('')}
+   </tbody>
+  </table>
+ `:'<div style="margin-top:8px;color:#999">No payments yet</div>';
+ 
+ return `
+  <div style="padding:16px;background:var(--card-bg,#fff);border-radius:10px;border-left:4px solid ${statusColor}">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px">
+    <div>
+     <b>Plan:</b> ${esc(student.membershipPlan||'Standard')}<br>
+     <b>Status:</b> <span style="color:${statusColor}">${statusEmoji} ${status||'UNKNOWN'}</span><br>
+     <b>Total Fee:</b> ₹${total.toLocaleString('en-IN')}
+    </div>
+    <div>
+     <b>Paid:</b> ₹${paid.toLocaleString('en-IN')}<br>
+     <b>Due:</b> ₹${due.toLocaleString('en-IN')}<br>
+     <b>Valid Till:</b> ${esc(student.expiryDate||'—')}
+    </div>
+   </div>
+   ${payUI}
+   <details style="margin-top:14px;padding-top:12px;border-top:1px solid #eee"><summary style="cursor:pointer;font-weight:700">💳 Payment History (${payments.length})</summary>${payTable}</details>
+  </div>
+ `;
+}
+
+async function beginMembershipPayment(){
+ const amountEl=document.getElementById('payAmount');
+ if(!amountEl)return;
+ 
+ const amount=Number(amountEl.value||0);
+ if(amount<1){alert('Enter valid amount');return;}
+ 
+ try{
+  const box=document.getElementById('upiBox');
+  box.innerHTML='<p style="color:#666">Creating payment...</p>';
+  
+  const resp=await post({
+   action:'libraryCreateUpiPayment',
+   token:T,
+   amount:amount
+  });
+  
+  if(!resp.success){
+   box.innerHTML='<p style="color:#c7254e">❌ '+esc(resp.message||'Payment failed')+'</p>';
+   return;
+  }
+  
+  const upiUri=resp.upiUri||'';
+  const refId=resp.reference||resp.requestId||'';
+  
+  box.innerHTML=`
+   <div style="padding:14px;border:1px solid #ddd;border-radius:10px;background:#f9f9f9">
+    <div style="margin-bottom:10px">
+     <b>Reference:</b> ${esc(refId)}<br>
+     <b>Amount:</b> ₹${Number(resp.amount||amount).toLocaleString('en-IN')}<br>
+     <b>UPI ID:</b> ${esc(resp.upiId||'—')}
+    </div>
+    <div id="libraryUpiQr" style="display:flex;justify-content:center;margin:10px 0;min-height:200px"></div>
+    ${upiUri?`<a class="library-btn" href="${esc(upiUri)}" style="display:block;text-align:center">📱 Open UPI App</a>`:''}
+    <p style="margin-top:10px;font-size:0.9em;color:#666">Payment करने के बाद status अपडेट होगा। 15-30 सेकंड में refresh करेंगे।</p>
+    <div id="upiStatus"></div>
+   </div>
+  `;
+  
+  if(typeof QRCode!=='undefined'&&upiUri){
+   new QRCode(document.getElementById('libraryUpiQr'),{text:upiUri,width:200,height:200});
+  }
+  
+  if(refId){
+   window.libraryPaymentRef=refId;
+   pollMembershipPayment(refId);
+  }
+ }catch(e){
+  document.getElementById('upiBox').innerHTML='<p style="color:#c7254e">❌ '+esc(e.message)+'</p>';
+ }
+}
+
+async function pollMembershipPayment(refId){
+ const statusEl=document.getElementById('upiStatus');
+ let attempts=0;
+ 
+ while(attempts<20&&window.libraryPaymentRef===refId){
+  await new Promise(r=>setTimeout(r,3000));
+  attempts++;
+  
+  try{
+   const resp=await post({
+    action:'upiPaymentStatus',
+    requestId:refId,
+    token:T
+   });
+   
+   if(statusEl){
+    const status=resp.status||'UNKNOWN';
+    statusEl.innerHTML=`<div style="margin-top:10px;padding:8px;background:${status==='VERIFIED_SUCCESS'?'#d4edda':status==='REJECTED'?'#f8d7da':'#fff3cd'};border-radius:6px;color:${status==='VERIFIED_SUCCESS'?'#155724':status==='REJECTED'?'#721c24':'#856404'}">
+     ${status==='VERIFIED_SUCCESS'?'✅ Payment Verified! Content will unlock in moments.':status==='REJECTED'?'❌ Payment Failed/Rejected':'⏳ Verifying...'}
+     ${resp.receiptNumber?'<br><small>Receipt: '+esc(resp.receiptNumber)+'</small>':''}
+    </div>`;
+   }
+   
+   if(status==='VERIFIED_SUCCESS'||status==='REJECTED'){
+    setTimeout(()=>location.reload(),2000);
+    break;
+   }
+  }catch(e){
+   if(statusEl)statusEl.innerHTML='<p style="color:#999"><small>Checking...</small></p>';
+  }
+ }
+}
+async function load(){
+ let r;
+ try{ r=await post({action:'libraryContent',token:T}); }
+ catch(e){ document.getElementById('welcome').textContent='❌ Network problem — page refresh karein'; return; }
+ if(!r||!r.success){
+  sessionStorage.removeItem('SURYA_LIBRARY_TOKEN');
+  document.getElementById('welcome').textContent='❌ '+((r&&r.message)||'Session expired')+' — Please login again';
+  setTimeout(()=>{location.href='library-login.html';},1500);
+  return;
+ }
+ const student=r.student||{};
+ document.getElementById('welcome').textContent='Welcome, '+(student.name||'Library Student');
+ document.getElementById('account').textContent='Library ID: '+(student.libraryId||'—')+' • Membership: '+(student.membershipPlan||'Standard');
+ document.getElementById('feeBox').innerHTML=feeBox(student);
+ const counts={pdf:(r.pdfs||[]).length,mock:(r.mock||[]).length,recorded:(r.recorded||[]).length,live:(r.live||[]).length};
+ Object.keys(counts).forEach(k=>{document.getElementById('n_'+k).textContent=counts[k]+(counts[k]===1?' item':' items');});
+ try{
+  const c=await post({action:'libraryPublishedCBTExams',token:T});
+  const arr=Array.isArray(c)?c:(c.tests||c.exams||[]);
+  document.getElementById('n_cbt').textContent=arr.length+(arr.length===1?' exam':' exams');
+ }catch(e){document.getElementById('n_cbt').textContent='Open';}
+}
+
+load();
+
+document.getElementById('logout').onclick=async e=>{
+ e.preventDefault();
+ try{
+  await post({action:'libraryLogout',token:T});
+ }finally{
+  sessionStorage.removeItem('SURYA_LIBRARY_TOKEN');
+  location.href='library-login.html';
+ }
+};</script><script src="assets/js/project-ui.js"></script>
+</body></html>

@@ -1,0 +1,440 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-subscriptions.html
+Version : v1.0.0
+Purpose : Course-wise Subscription Plan Management
+Author  : Devendra Kumar
+Guide   : AERON
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+
+<title>Subscription Management | Surya Computer Of Education Center</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+
+<script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+
+<style>
+.subscription-wrap{
+    max-width:1000px;
+    margin:18px auto;
+    padding:0 14px 30px;
+}
+.subscription-card{
+    background:var(--cimp-panel,#fff);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+.subscription-card h2,
+.subscription-card h3{
+    margin-top:0;
+}
+.subscription-form input,
+.subscription-form select{
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    padding:12px;
+    margin:9px 0;
+    border:1px solid #cbd5e1;
+    border-radius:9px;
+    background:inherit;
+    color:inherit;
+}
+.subscription-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:12px;
+}
+.subscription-actions button,
+.plan-actions button{
+    border:0;
+    border-radius:9px;
+    padding:10px 15px;
+    cursor:pointer;
+}
+.plan-record{
+    border:1px solid #dbe2ea;
+    border-radius:12px;
+    padding:14px;
+    margin:10px 0;
+}
+.plan-record strong{
+    font-size:16px;
+}
+.plan-meta{
+    margin-top:7px;
+    line-height:1.7;
+}
+.plan-actions{
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+.subscription-message{
+    margin-top:10px;
+    font-weight:700;
+}
+.empty-plans{
+    opacity:.7;
+    text-align:center;
+    padding:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+<header class="header">
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Subscription Management</p>
+    </div>
+</header>
+
+<nav class="navbar">
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admin-students.html">Students</a>
+    <a href="admin-courses.html">Courses</a>
+    <a href="admin-fees.html">Fees</a>
+</nav>
+
+<main class="subscription-wrap">
+
+    <div class="admin-header">
+        <h2>🔐 Course-wise Subscription Management</h2>
+        <p>Create and manage separate subscription plans for each course.</p>
+    </div>
+
+    <section class="subscription-card subscription-form">
+
+        <h3>➕ Add / Edit Subscription Plan</h3>
+
+        <input type="hidden" id="planId">
+
+        <select id="courseId">
+            <option value="">⏳ Loading courses...</option>
+        </select>
+
+        <input
+            type="text"
+            id="planName"
+            placeholder="Plan Name e.g. Monthly / 3 Months / Premium"
+            autocomplete="off"
+        >
+
+        <input
+            type="number"
+            id="price"
+            min="1"
+            step="0.01"
+            placeholder="Subscription Price ₹"
+            inputmode="decimal"
+        >
+
+        <input
+            type="number"
+            id="validityDays"
+            min="1"
+            step="1"
+            placeholder="Validity Days e.g. 30"
+            inputmode="numeric"
+        >
+
+        <select id="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+
+        <div class="subscription-actions">
+            <button type="button" onclick="savePlan()">💾 Save Plan</button>
+            <button type="button" onclick="clearPlanForm()">🧹 Clear</button>
+        </div>
+
+        <div id="subscriptionMessage" class="subscription-message"></div>
+
+    </section>
+
+    <section class="subscription-card">
+
+        <h3>📋 All Subscription Plans</h3>
+
+        <div id="planList">
+            <div class="empty-plans">Loading subscription plans...</div>
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+"use strict";
+
+const API = window.SURYA_DATABASE_API;
+
+function getAdminToken(){
+    return sessionStorage.getItem("SURYA_ADMIN_TOKEN") || "";
+}
+
+async function api(body){
+    const response = await fetch(API,{
+        method:"POST",
+        headers:{
+            "Content-Type":"text/plain;charset=utf-8"
+        },
+        body:JSON.stringify({
+            ...body,
+            token:getAdminToken()
+        })
+    });
+
+    const data = await response.json();
+
+    if(!data.success){
+        throw new Error(data.message || "Request failed.");
+    }
+
+    return data;
+}
+
+function esc(value){
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+async function loadCourses(){
+    const select = document.getElementById("courseId");
+
+    try{
+        const data = await api({action:"courses"});
+        const courses = Array.isArray(data.courses) ? data.courses : [];
+
+        select.innerHTML =
+            '<option value="">-- Select Course --</option>';
+
+        courses.forEach(course=>{
+            const id = String(course["Course ID"] || course.courseId || "").trim();
+            const name = String(course["Course Name"] || course.courseName || id).trim();
+
+            if(!id) return;
+
+            const option = document.createElement("option");
+            option.value = id;
+            option.textContent = id + " — " + name;
+            select.appendChild(option);
+        });
+
+    }catch(error){
+        select.innerHTML =
+            '<option value="">Unable to load courses</option>';
+        showMessage("❌ " + error.message);
+    }
+}
+
+async function loadPlans(){
+    const list = document.getElementById("planList");
+
+    try{
+        const data = await api({
+            action:"adminGetSubscriptionPlans"
+        });
+
+        const plans = Array.isArray(data.plans) ? data.plans : [];
+
+        if(!plans.length){
+            list.innerHTML =
+                '<div class="empty-plans">No subscription plans created yet.</div>';
+            return;
+        }
+
+        list.innerHTML = plans.map(plan=>{
+            const planId = String(plan["Plan ID"] || "");
+            const courseId = String(plan["Course ID"] || "");
+            const planName = String(plan["Plan Name"] || "");
+            const price = String(plan["Price"] || "");
+            const days = String(plan["Validity Days"] || "");
+            const status = String(plan["Status"] || "Active");
+
+            return `
+                <div class="plan-record">
+                    <strong>📦 ${esc(planName)}</strong>
+
+                    <div class="plan-meta">
+                        <div><b>Course:</b> ${esc(courseId)}</div>
+                        <div><b>Price:</b> ₹${esc(price)}</div>
+                        <div><b>Validity:</b> ${esc(days)} days</div>
+                        <div><b>Status:</b> ${esc(status)}</div>
+                        <div><b>Plan ID:</b> ${esc(planId)}</div>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button type="button"
+                            onclick='editPlan(${JSON.stringify(planId)})'>
+                            ✏️ Edit
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+    }catch(error){
+        list.innerHTML =
+            '<div class="empty-plans">Unable to load subscription plans.</div>';
+        showMessage("❌ " + error.message);
+    }
+}
+
+async function savePlan(){
+    const planId = document.getElementById("planId").value.trim();
+    const courseId = document.getElementById("courseId").value.trim();
+    const planName = document.getElementById("planName").value.trim();
+    const price = document.getElementById("price").value.trim();
+    const validityDays = document.getElementById("validityDays").value.trim();
+    const status = document.getElementById("status").value;
+
+    if(!courseId){
+        showMessage("❌ Please select a course.");
+        return;
+    }
+
+    if(!planName){
+        showMessage("❌ Please enter Plan Name.");
+        return;
+    }
+
+    if(!price || Number(price) <= 0){
+        showMessage("❌ Please enter a valid price.");
+        return;
+    }
+
+    if(!validityDays || Number(validityDays) <= 0){
+        showMessage("❌ Please enter valid validity days.");
+        return;
+    }
+
+    try{
+        showMessage("⏳ Saving subscription plan...");
+
+        const data = await api({
+            action:"adminSaveSubscriptionPlan",
+            planId,
+            courseId,
+            planName,
+            price,
+            validityDays,
+            status
+        });
+
+        showMessage("✅ " + (data.message || "Plan saved successfully."));
+
+        clearPlanForm();
+        await loadPlans();
+
+    }catch(error){
+        showMessage("❌ " + error.message);
+    }
+}
+
+async function editPlan(planId){
+    try{
+        const data = await api({
+            action:"adminGetSubscriptionPlans"
+        });
+
+        const plans = Array.isArray(data.plans) ? data.plans : [];
+        const plan = plans.find(
+            item => String(item["Plan ID"] || "") === String(planId)
+        );
+
+        if(!plan){
+            showMessage("❌ Subscription plan not found.");
+            return;
+        }
+
+        document.getElementById("planId").value =
+            plan["Plan ID"] || "";
+
+        document.getElementById("courseId").value =
+            plan["Course ID"] || "";
+
+        document.getElementById("planName").value =
+            plan["Plan Name"] || "";
+
+        document.getElementById("price").value =
+            plan["Price"] || "";
+
+        document.getElementById("validityDays").value =
+            plan["Validity Days"] || "";
+
+        document.getElementById("status").value =
+            plan["Status"] || "Active";
+
+        window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
+
+        showMessage("✏️ Editing subscription plan.");
+
+    }catch(error){
+        showMessage("❌ " + error.message);
+    }
+}
+
+function clearPlanForm(){
+    document.getElementById("planId").value = "";
+    document.getElementById("courseId").value = "";
+    document.getElementById("planName").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("validityDays").value = "";
+    document.getElementById("status").value = "Active";
+}
+
+function showMessage(message){
+    document.getElementById("subscriptionMessage").textContent = message;
+}
+
+async function init(){
+    await loadCourses();
+    await loadPlans();
+}
+
+init();
+</script>
+
+<script src="assets/js/project-ui.js"></script>
+<script src="AERON/config/aeron-config.js"></script>
+<script src="AERON/js/aeron-tts.js" defer></script>
+<script src="AERON/js/aeron-widget.js" defer></script>
+
+</body>
+</html>

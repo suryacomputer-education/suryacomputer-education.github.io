@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Live Classes | Surya Computer Of Education Center</title>
+    <meta name="description" content="Live computer classes and learning sessions for SURYA COMPUTER students and Digital Library members.">
+    <meta name="keywords" content="Surya Computer live classes, computer live class Kamalpur">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://suryacomputer-education.github.io/live-classes.html">
+    <meta property="og:title" content="Live Classes | Surya Computer Digital Library">
+    <meta property="og:description" content="Live computer classes and learning sessions for SURYA COMPUTER students and Digital Library members.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suryacomputer-education.github.io/live-classes.html">
+    <meta property="og:image" content="assets/images/favicon-512.png">
+<link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.wrap{max-width:900px;margin:25px auto;padding:15px}.card{background:#fff;padding:20px;border-radius:14px;margin:15px 0;box-shadow:0 4px 18px rgba(0,0,0,.08)}.btn{display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;background:#1769aa;color:#fff}</style>    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head><body><div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a></div><header class="header"><img src="assets/images/logo.png" class="logo" alt="Logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Live Classes</p></div></header><main class="wrap"><h2>🔴 Live / Upcoming Classes</h2><div id="msg">Loading...</div><div id="classes"></div></main><script src="assets/js/backend-config.js"></script>
+<script>const API=window.SURYA_DATABASE_API,token=sessionStorage.getItem('SURYA_STUDENT_TOKEN');function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}async function load(){if(!token){msg.textContent='❌ Student login required.';return;}try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'liveClasses',token})});const d=await r.json();if(!d.success)throw new Error(d.message);const a=d.classes||[];msg.textContent=a.length?'':'No published classes.';classes.innerHTML=a.map(c=>`<div class="card"><h3>${esc(c['Title'])}</h3><p><b>Course:</b> ${esc(c['Course'])}</p><p><b>Teacher:</b> ${esc(c['Teacher'])}</p><p><b>Date:</b> ${esc(c['Date'])} | ${esc(c['Start Time'])} - ${esc(c['End Time'])}</p><p>${esc(c['Description'])}</p>${String(c.accessMode||'FREE').toUpperCase()==='PAID' && String(c.accessState||'').toUpperCase()!=='UNLOCKED' ? '<p><b>🔒 PAID</b> — Fee payment/verification required to join.</p>' : (c['Join URL']?`<a class="btn" href="${esc(c['Join URL'])}" target="_blank" rel="noopener">🎥 Join Class</a>`:'')}</div>`).join('');}catch(e){msg.textContent='❌ '+e.message;}}load();</script>    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body></html>

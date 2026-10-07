@@ -1,0 +1,234 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-admissions.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Admission Applications | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+
+<style>
+#applicationViewModal > div {
+    background:#ffffff !important;
+    color:#111111 !important;
+}
+
+#applicationViewModal > div p,
+#applicationViewModal > div h2,
+#applicationViewModal > div strong {
+    color:#111111 !important;
+}
+
+#applicationViewModal > div button {
+    color:#111111 !important;
+    background:#f5f5f5 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    #applicationViewModal > div {
+        background:#1e1e1e !important;
+        color:#ffffff !important;
+    }
+
+    #applicationViewModal > div p,
+    #applicationViewModal > div h2,
+    #applicationViewModal > div strong {
+        color:#ffffff !important;
+    }
+
+    #applicationViewModal > div button {
+        color:#ffffff !important;
+        background:#333333 !important;
+    }
+}
+</style>
+<style>
+#applicationViewModal,
+#applicationViewModal * {
+    color:#111111 !important;
+}
+
+#applicationViewModal > div {
+    background:#ffffff !important;
+}
+
+#applicationViewModal p,
+#applicationViewModal h2,
+#applicationViewModal strong {
+    color:#111111 !important;
+}
+
+#applicationViewModal button {
+    color:#ffffff !important;
+    background:#1565c0 !important;
+}
+</style>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Admission Management</p>
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="admin.html">Admin Dashboard</a>
+    <a href="admission.html">New Admission</a>
+</nav>
+
+
+<!-- ADMISSION MANAGEMENT -->
+
+<section class="admin-admissions">
+
+    <div class="admin-header">
+
+        <h2>🎓 Admission Applications</h2>
+
+        <p>
+            Manage student admission applications
+        </p>
+
+    </div>
+
+    <!-- =========================================
+         APPLICATION FILTER + SEARCH
+    ========================================== -->
+
+    <div class="admission-controls">
+
+        <div class="admission-filter-buttons" role="group" aria-label="Application filters">
+            <button type="button" class="admission-filter-btn active" data-admission-filter="all">
+                📋 Total <span id="filterTotalCount">0</span>
+            </button>
+            <button type="button" class="admission-filter-btn" data-admission-filter="Pending">
+                🆕 New <span id="filterPendingCount">0</span>
+            </button>
+            <button type="button" class="admission-filter-btn" data-admission-filter="Approved">
+                ✅ Approved <span id="filterApprovedCount">0</span>
+            </button>
+            <button type="button" class="admission-filter-btn" data-admission-filter="Rejected">
+                ❌ Rejected <span id="filterRejectedCount">0</span>
+            </button>
+        </div>
+
+        <input
+            type="search"
+            id="admissionSearch"
+            class="admission-search-input"
+            placeholder="Search Application ID, Student ID, Name, Mobile or Course"
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <!-- =========================================
+         APPLICATION LIST
+    ========================================== -->
+
+    <div
+        id="applicationList"
+        class="application-list"
+    >
+    </div>
+
+
+    <!-- =========================================
+         NO APPLICATION MESSAGE
+    ========================================== -->
+
+    <div
+        id="noApplications"
+        class="no-applications"
+        style="display:none;"
+    >
+        ❌ No admission applications found.
+    </div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">+91 7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script src="assets/js/admin-admissions.js"></script>
+
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>SURYA — Central Question Bank</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/project-ui.css"><link rel="stylesheet" href="assets/css/dark-mode-fix.css"><script src="assets/js/backend-config.js"></script><script src="assets/js/surya-format.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><style>.wrap{max-width:1150px;margin:auto;padding:20px}.panel{background:var(--cimp-panel,#fff);border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 5px 20px #0000000d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.grid input,.grid select,.editor input,.editor select,.editor textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccd4df;border-radius:8px;background:inherit;color:inherit}.editor textarea{min-height:120px}.btn{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:#1f5eff;color:#fff;margin:4px}.btn.secondary{background:#64748b}.btn.danger{background:#c62828}.small{font-size:13px;opacity:.75}.q{border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin:10px 0}.ok{color:#16823b}.err{color:#c62828}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.fixed{width:auto!important}.tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid currentColor;font-size:12px}</style><link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body><main class="wrap"><div class="row"><div style="flex:1"><h1>🧠 Central Question Bank</h1><p class="small">हर question का एक Question ID होगा. Manual/PDF import उसी Course + Subject में duplicate question को दोबारा नहीं बनाएगा.</p></div><a class="btn secondary" href="admin-mock-tests.html">← Mock Tests</a></div><div id="msg"></div>
+<section class="panel"><h2>1. Manual Question</h2><div class="grid"><select id="audience"><option value="COMPUTER">💻 Computer Students</option><option value="LIBRARY">📚 Library Students</option><option value="BOTH">💻📚 Both</option></select><select id="course"></select><select id="subject"></select><select id="accessMode"><option value="FREE">FREE</option><option value="PAID">PAID</option></select><input id="sourceName" placeholder="Source / Book name"></div><div class="editor" style="margin-top:12px;display:grid;gap:10px"><input id="questionId" placeholder="Question ID (blank = new)"><textarea id="qText" placeholder="Question"></textarea><input id="optA" placeholder="Option A"><input id="optB" placeholder="Option B"><input id="optC" placeholder="Option C"><input id="optD" placeholder="Option D"><div class="grid"><select id="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select><input id="marks" type="number" min="1" value="1" placeholder="Marks"></div><div><button class="btn" onclick="saveManual()">💾 Save / Update</button><button class="btn secondary" onclick="clearEditor()">Clear</button></div></div></section>
+<section class="panel" id="import"><h2>2. PDF Question Import</h2><input id="pdfFile" type="file" accept="application/pdf"><p class="small">PDF में selectable text होना चाहिए. PDF browser में locally read होगा; server पर PDF upload नहीं होगा. Format: 1. Question, A. option, B. option, C. option, D. option, Answer: B, Marks: 1.</p><div class="grid"><input id="importSource" placeholder="PDF / book name"><select id="importAccess"><option value="FREE">FREE</option><option value="PAID">PAID</option></select></div><textarea id="raw" style="width:100%;box-sizing:border-box;margin-top:10px;min-height:220px" placeholder="Extracted PDF text / pasted text"></textarea><button class="btn secondary" onclick="extractPdf()">📄 Read PDF</button><button class="btn secondary" onclick="previewImport()">🔎 Preview</button><button class="btn" onclick="importQuestions()">💾 Import Questions</button><div id="preview"></div></section>
+<section class="panel"><h2>3. Reusable Questions</h2><div class="grid"><select id="filterAudience"><option value="">All Audiences</option><option value="COMPUTER">💻 Computer</option><option value="LIBRARY">📚 Library</option><option value="BOTH">💻📚 Both</option></select><select id="filterCourse"></select><select id="filterSubject"></select><select id="filterAccess"><option value="">All Access</option><option value="FREE">FREE</option><option value="PAID">PAID</option></select><select id="testSelect"></select></div><div class="row"><button class="btn secondary" onclick="loadBank()">Refresh</button><button class="btn" onclick="attachSelected()">➕ Add Selected to Mock Test</button></div><div id="bank"></div></section></main>
+<script>
+"use strict";
+const API=window.SURYA_DATABASE_API,TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");let courses=[],subjects=[],tests=[],preview=[];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+function msg(t,e=false){document.getElementById("msg").innerHTML='<p class="'+(e?'err':'ok')+'">'+esc(t)+'</p>';}
+async function api(b){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...b,token:TOKEN})});const d=await r.json();if(!d.success)throw Error(d.message||"Request failed");return d;}
+async function init(){try{const[c,s,t]=await Promise.all([api({action:"courses"}),api({action:"courseSubjects"}),api({action:"mockTests"})]);courses=(c.courses||[]).filter(x=>String(x.Status||"Active").toLowerCase()==="active");subjects=(s.subjects||[]).filter(x=>String(x.Status||"Active").toLowerCase()==="active");tests=t.tests||[];fill();loadBank();}catch(e){msg(e.message,true)}}
+function updateAudienceFields(){
+  const audience=document.getElementById("audience").value;
+  const course=document.getElementById("course");
+  const subject=document.getElementById("subject");
+
+  if(audience==="LIBRARY"){
+    course.style.display="none";
+    subject.style.display="none";
+  }else{
+    course.style.display="";
+    subject.style.display="";
+  }
+}
+
+function fill(){const c=document.getElementById("course"),fc=document.getElementById("filterCourse"),ts=document.getElementById("testSelect");c.innerHTML='<option value="">Select Course</option>'+courses.map(x=>'<option value="'+esc(x["Course ID"])+'">'+esc(x["Course ID"])+" — "+esc(x["Course Name"]||x["Course ID"])+'</option>').join("");fc.innerHTML='<option value="">All Courses</option>'+courses.map(x=>'<option value="'+esc(x["Course ID"])+'">'+esc(x["Course ID"])+'</option>').join("");ts.innerHTML='<option value="">Select Mock Test</option>'+tests.map(x=>{const a=String(x["Audience"]||"").toUpperCase();const icon=a==="LIBRARY"?"📚":a==="BOTH"?"💻📚":"💻";const label=a==="LIBRARY"?"Library":a==="BOTH"?"Both":"Computer";return '<option value="'+esc(x["Test ID"])+'">'+icon+" "+label+" — "+esc(x["Test ID"])+" — "+esc(x.Title)+'</option>';}).join("");c.onchange=()=>fillSubjects("course","subject");
+fc.onchange=()=>fillSubjects("filterCourse","filterSubject");
+
+ts.onchange=()=>{
+  const test=tests.find(x=>
+    String(x["Test ID"]||"")===String(ts.value)
+  );
+
+  if(test){
+    const a=String(test["Audience"]||"").toUpperCase();
+
+    if(["COMPUTER","LIBRARY","BOTH"].indexOf(a)>=0){
+      document.getElementById("filterAudience").value=a;
+    }
+  }
+
+  loadBank();
+};
+
+fillSubjects("course","subject");
+fillSubjects("filterCourse","filterSubject");
+
+document.getElementById("audience").onchange=updateAudienceFields;
+document.getElementById("filterAudience").onchange=loadBank;
+
+updateAudienceFields();
+}
+function fillSubjects(cId,sId){const c=document.getElementById(cId).value,s=document.getElementById(sId),a=c?subjects.filter(x=>String(x.course||x.Course||"").toLowerCase()===String(c).toLowerCase()):subjects;s.innerHTML='<option value="">'+(c?'Select Subject':'All Subjects')+'</option>'+a.map(x=>'<option value="'+esc(x.subjectId||x["Subject ID"]||"")+'">'+esc(x.subjectId||x["Subject ID"]||"")+" — "+esc(x.subjectName||x["Subject Name"]||x.subjectId||x["Subject ID"]||"")+'</option>').join("");}
+function parseLocal(raw){const lines=String(raw||"").replace(/\r/g,"").split("\n"),out=[];let q=null,active=null;function flush(){if(q&&q.question&&q.o.A&&q.o.B&&q.o.C&&q.o.D&&q.a)out.push({...q});q=null;active=null}for(let line of lines){line=line.trim();if(!line)continue;let m=line.match(/^(?:Q(?:uestion)?\s*)?(\d+)\s*[\.\):\-]\s*(.+)$/i);if(m){flush();q={question:m[2],o:{},a:"",marks:1};active="question";continue}m=line.match(/^([ABCD])\s*[\.\):\-]\s*(.+)$/i);if(m){q=q||{question:"",o:{},a:"",marks:1};q.o[m[1].toUpperCase()]=m[2];active=m[1].toUpperCase();continue}m=line.match(/^(?:answer|correct\s*answer|ans)\s*[:\-]\s*([ABCD])/i);if(m){q=q||{question:"",o:{},a:"",marks:1};q.a=m[1].toUpperCase();active=null;continue}m=line.match(/^(?:marks?|mark)\s*[:\-]?\s*(\d+(?:\.\d+)?)/i);if(m){q=q||{question:"",o:{},a:"",marks:1};q.marks=Number(m[1]);continue}if(!q){q={question:line,o:{},a:"",marks:1};active="question"}else if(active&&q.o[active])q.o[active]+=" "+line;else{q.question+=" "+line;active="question"}}flush();return out}
+function previewImport(){preview=parseLocal(document.getElementById("raw").value);document.getElementById("preview").innerHTML=preview.length?preview.map((q,i)=>'<div class="q"><b>'+(i+1)+'. '+esc(q.question)+'</b><br>A. '+esc(q.o.A)+'<br>B. '+esc(q.o.B)+'<br>C. '+esc(q.o.C)+'<br>D. '+esc(q.o.D)+'<br><span class="small">Answer: '+esc(q.a)+' • Marks: '+esc(q.marks)+'</span></div>').join(""):'<p class="err">No complete questions detected.</p>'}
+async function extractPdf(){
+ const file=document.getElementById("pdfFile").files[0];
+ if(!file){msg("Select a PDF first.",true);return}
+ try{
+  if(!window.pdfjsLib)throw Error("PDF reader is not loaded.");
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc=
+   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const pdf=await pdfjsLib.getDocument({
+   data:new Uint8Array(await file.arrayBuffer())
+  }).promise;
+
+  let pages=[];
+
+  for(let i=1;i<=pdf.numPages;i++){
+   const page=await pdf.getPage(i);
+   const c=await page.getTextContent();
+
+   const lines=[];
+   let current=null;
+
+   c.items.forEach(function(item){
+    const text=String(item.str||"").trim();
+    if(!text)return;
+
+    const y=Math.round(Number(item.transform&&item.transform[5]||0));
+
+    if(current===null){
+     current={y:y,text:text};
+    }else if(Math.abs(current.y-y)<=3){
+     current.text+=" "+text;
+    }else{
+     lines.push(current.text.trim());
+     current={y:y,text:text};
+    }
+   });
+
+   if(current)lines.push(current.text.trim());
+
+   pages.push(lines.join("\n"));
+  }
+
+  document.getElementById("raw").value=pages.join("\n");
+  document.getElementById("importSource").value=file.name;
+
+  preview=[];
+  document.getElementById("preview").innerHTML="";
+
+  msg("PDF read complete. Text lines preserved. Now click Preview.");
+ }catch(e){
+  msg(e.message,true);
+ }
+}
+function clearEditor(){["questionId","qText","optA","optB","optC","optD","sourceName"].forEach(id=>document.getElementById(id).value="");document.getElementById("marks").value=1;document.getElementById("correct").value="A";document.getElementById("accessMode").value="FREE";}
+async function saveManual(){
+  try{
+    const audience=document.getElementById("audience").value;
+    const c=document.getElementById("course").value;
+    const sub=document.getElementById("subject").value;
+
+    if(audience!=="LIBRARY" && (!c || !sub)){
+      throw Error("Course and Subject are required for Computer/Both questions.");
+    }
+
+    const subjectRow=subjects.find(x=>
+      String(x["Subject ID"]||x.subjectId||"")===String(sub)
+    )||{};
+
+    const d=await api({
+      action:"saveQuestionBankQuestion",
+      question:{
+        questionId:document.getElementById("questionId").value,
+        audience:audience,
+        course:c,
+        subjectId:sub,
+        subjectName:subjectRow["Subject Name"]||subjectRow.subjectName||"",
+        question:document.getElementById("qText").value,
+        optionA:document.getElementById("optA").value,
+        optionB:document.getElementById("optB").value,
+        optionC:document.getElementById("optC").value,
+        optionD:document.getElementById("optD").value,
+        correctAnswer:document.getElementById("correct").value,
+        marks:document.getElementById("marks").value,
+        accessMode:document.getElementById("accessMode").value,
+        sourceType:"MANUAL",
+        sourceName:document.getElementById("sourceName").value,
+        status:"ACTIVE"
+      }
+    });
+
+    document.getElementById("questionId").value=d.question["Question ID"];
+    msg("Saved "+d.question["Question ID"]+". Same Question ID will be reused.");
+    loadBank();
+
+  }catch(e){
+    msg(e.message,true);
+  }
+}
+async function importQuestions(){
+  try{
+    if(!preview.length){
+      preview=parseLocal(document.getElementById("raw").value);
+    }
+
+    if(!preview.length){
+      throw Error("Preview at least one question first.");
+    }
+
+    const audience=document.getElementById("audience").value;
+    const c=document.getElementById("course").value;
+    const sub=document.getElementById("subject").value;
+
+    if(audience!=="LIBRARY" && (!c || !sub)){
+      throw Error("Course and Subject are required for Computer/Both questions.");
+    }
+
+    const subjectRow=subjects.find(x=>
+      String(x["Subject ID"]||x.subjectId||"")===String(sub)
+    )||{};
+
+    const d=await api({
+      action:"importQuestionBankText",
+      audience:audience,
+      course:c,
+      subjectId:sub,
+      subjectName:subjectRow["Subject Name"]||subjectRow.subjectName||"",
+      sourceName:document.getElementById("importSource").value||"PDF/Text",
+      sourceType:"PDF_TEXT",
+      accessMode:document.getElementById("importAccess").value,
+      rawText:document.getElementById("raw").value,
+      actor:"ADMIN"
+    });
+
+    msg(d.importedCount+" question(s) imported/updated; duplicates merged.");
+    loadBank();
+
+  }catch(e){
+    msg(e.message,true);
+  }
+}
+async function loadBank(){
+  try{
+    const d=await api({
+      action:"questionBank",
+      course:document.getElementById("filterCourse").value,
+      subjectId:document.getElementById("filterSubject").value,
+      status:"ACTIVE"
+    });
+
+    let a=d.questions||[];
+
+    const audience=document.getElementById("filterAudience").value;
+    const access=document.getElementById("filterAccess").value;
+
+    if(audience){
+      a=a.filter(q=>{
+        const qa=String(q["Audience"]||"COMPUTER").toUpperCase();
+        return qa===audience;
+      });
+    }
+
+    if(access){
+      a=a.filter(q=>
+        String(q["Access Mode"]||"FREE").toUpperCase()===access
+      );
+    }
+
+    renderBank(a);
+
+  }catch(e){
+    msg(e.message,true);
+  }
+}
+function renderBank(a){document.getElementById("bank").innerHTML=a.length?a.map(q=>`<div class="q"><label><input class="fixed qb" type="checkbox" value="${esc(q["Question ID"])}"> <b>${esc(q["Question ID"])}</b> <span class="tag">${esc(q["Access Mode"]||"FREE")}</span> <span class="small">${esc(q.Course)} / ${esc(q["Subject ID"])}</span></label><p>${esc(q.Question)}</p><div class="small">A: ${esc(q["Option A"])} | B: ${esc(q["Option B"])} | C: ${esc(q["Option C"])} | D: ${esc(q["Option D"])}<br>Answer: ${esc(q["Correct Answer"])} • ${esc(q.Marks)} marks</div><button class="btn secondary" onclick='editQuestion(${JSON.stringify(q).replace(/'/g, '\u0027')})'>✏️ Update</button><button class="btn danger" onclick='removeQuestion(${JSON.stringify(String(q["Question ID"]||""))})'>🗑️ Remove</button></div>`).join(""):"<p>Question Bank empty for this filter.</p>"}
+function editQuestion(q){
+  document.getElementById("questionId").value=q["Question ID"]||"";
+
+  const audience=String(q["Audience"]||"COMPUTER").toUpperCase();
+  document.getElementById("audience").value=
+    ["COMPUTER","LIBRARY","BOTH"].indexOf(audience)>=0
+      ? audience
+      : "COMPUTER";
+
+  document.getElementById("course").value=q.Course||"";
+  fillSubjects("course","subject");
+  document.getElementById("subject").value=q["Subject ID"]||"";
+
+  updateAudienceFields();
+
+  document.getElementById("accessMode").value=q["Access Mode"]||"FREE";
+  document.getElementById("qText").value=q.Question||"";
+  document.getElementById("optA").value=q["Option A"]||"";
+  document.getElementById("optB").value=q["Option B"]||"";
+  document.getElementById("optC").value=q["Option C"]||"";
+  document.getElementById("optD").value=q["Option D"]||"";
+  document.getElementById("correct").value=q["Correct Answer"]||"A";
+  document.getElementById("marks").value=q.Marks||1;
+  document.getElementById("sourceName").value=q["Source Name"]||"";
+
+  scrollTo({top:0,behavior:"smooth"});
+}
+async function removeQuestion(id){if(!confirm("Remove "+id+" from active Question Bank?"))return;try{await api({action:"deleteQuestionBankQuestion",questionId:id});msg(id+" removed.");loadBank()}catch(e){msg(e.message,true)}}
+async function attachSelected(){try{const test=document.getElementById("testSelect").value,ids=[...document.querySelectorAll(".qb:checked")].map(x=>x.value);if(!test)throw Error("Select a Mock Test.");if(!ids.length)throw Error("Select at least one question.");const d=await api({action:"attachQuestionBankToMock",questionIds:ids,testId:test});msg((d.attached||0)+" question(s) linked; "+(d.skipped||0)+" duplicate(s) skipped.");}catch(e){msg(e.message,true)}}
+init();
+</script><script src="assets/js/project-ui.js"></script></body></html>

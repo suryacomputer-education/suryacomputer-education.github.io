@@ -1,0 +1,199 @@
+/* ==================================================
+   SURYA CIMP — PROJECT UI / ACCESSIBILITY LAYER
+   Technical Advisor : AERON
+   ================================================== */
+:root { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+html, body { transition: background-color .2s ease, color .2s ease; }
+html[data-theme="dark"] body { background:#0b1220 !important; color:#f8fafc !important; }
+html[data-theme="dark"] body * { border-color:#334155; }
+html[data-theme="dark"] .header, html[data-theme="dark"] .top-bar,
+html[data-theme="dark"] footer, html[data-theme="dark"] .footer,
+html[data-theme="dark"] .navbar { background:#0b1220 !important; color:#f8fafc !important; }
+html[data-theme="dark"] .navbar a { color:#e5e7eb !important; }
+html[data-theme="dark"] .admin-card, html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .certificate-card, html[data-theme="dark"] .application-card,
+html[data-theme="dark"] .admin-login-card, html[data-theme="dark"] .auth-box,
+html[data-theme="dark"] .card, html[data-theme="dark"] .course-card,
+html[data-theme="dark"] .about-text, html[data-theme="dark"] .contact-info,
+html[data-theme="dark"] .contact-form, html[data-theme="dark"] .quick-card,
+html[data-theme="dark"] .gallery-category, html[data-theme="dark"] .public-notice,
+html[data-theme="dark"] .notice-box, html[data-theme="dark"] #passwordPanel,
+html[data-theme="dark"] .panel, html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .form-card, html[data-theme="dark"] .table-card {
+  background:#172033 !important; color:#f8fafc !important;
+}
+html[data-theme="dark"] p, html[data-theme="dark"] label,
+html[data-theme="dark"] li, html[data-theme="dark"] small,
+html[data-theme="dark"] .muted { color:#cbd5e1 !important; }
+html[data-theme="dark"] h1, html[data-theme="dark"] h2,
+html[data-theme="dark"] h3, html[data-theme="dark"] h4,
+html[data-theme="dark"] h5, html[data-theme="dark"] h6 { color:#f8fafc !important; }
+html[data-theme="dark"] input, html[data-theme="dark"] select,
+html[data-theme="dark"] textarea, html[data-theme="dark"] option {
+  background:#0f172a !important; color:#f8fafc !important; border-color:#475569 !important;
+}
+html[data-theme="dark"] input::placeholder, html[data-theme="dark"] textarea::placeholder { color:#94a3b8 !important; }
+html[data-theme="dark"] table { color:#f8fafc !important; background:#172033 !important; }
+html[data-theme="dark"] th { background:#0f172a !important; color:#f8fafc !important; }
+html[data-theme="dark"] td { color:#e5e7eb !important; background:#172033 !important; }
+html[data-theme="dark"] .notice-badge, html[data-theme="dark"] .pill { background:#1e3a5f !important; color:#bfdbfe !important; }
+html[data-theme="dark"] a { color:#93c5fd; }
+html[data-theme="dark"] .btn, html[data-theme="dark"] button.primary { color:#fff !important; }
+html[data-theme="dark"] .error-message, html[data-theme="dark"] .success-message { color:inherit !important; }
+html[data-theme="light"] .cimp-theme-toggle { color:#222; }
+input, select, textarea { text-align:center; }
+body, input, select, textarea, button { -webkit-tap-highlight-color:transparent; }
+@media print { .cimp-theme-toggle { display:none !important; } }
+
+/* AERON/CIMP FINAL READABILITY FIX */
+.top-bar a,.top-bar a:visited{color:#fff!important;text-decoration:none!important}
+footer a,.footer a{color:#fff!important}
+.notice-box{color:#0f172a!important}
+.notice-box *{color:inherit!important}
+html[data-theme="dark"] .notice-box,html.dark-mode .notice-box,html.dark .notice-box,body.dark-mode .notice-box,body.dark .notice-box{background:#172033!important;color:#f8fafc!important}
+html[data-theme="dark"] .notice-box *,html.dark-mode .notice-box *,html.dark .notice-box *,body.dark-mode .notice-box *,body.dark .notice-box *{color:#f8fafc!important}
+html[data-theme="dark"] .top-bar a,html.dark-mode .top-bar a,html.dark .top-bar a,body.dark-mode .top-bar a,body.dark .top-bar a,html[data-theme="dark"] footer a,html.dark-mode footer a,html.dark footer a,body.dark-mode footer a,body.dark footer a{color:#e5e7eb!important}
+/* =========================================================
+   SURYA DIGITAL LIBRARY
+   RECTANGULAR RUNNING LIGHT BORDER
+   ========================================================= */
+
+.digital-library-nav {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    padding: 8px 12px;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Very light permanent rectangular border/glow */
+.digital-library-nav {
+    box-shadow:
+        0 0 4px rgba(255, 255, 255, 0.10),
+        inset 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+/* The moving light */
+.digital-library-nav::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    width: 35px;
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.95),
+        transparent
+    );
+
+    box-shadow:
+        0 0 5px rgba(255, 255, 255, 0.75),
+        0 0 10px rgba(255, 255, 255, 0.35);
+
+    offset-path: inset(0 round 8px);
+    offset-distance: 0%;
+    offset-rotate: auto;
+
+    animation: digitalLibraryLightRun 5s linear infinite;
+
+    pointer-events: none;
+}
+
+/* Keep the text completely still */
+.digital-library-nav::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+@keyframes digitalLibraryLightRun {
+    to {
+        offset-distance: 100%;
+    }
+}
+
+
+/* =========================================================
+   MOBILE NAVIGATION
+   Result → Digital Library → Certificate
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .navbar a:nth-child(1)  { order: 1; }
+    .navbar a:nth-child(2)  { order: 2; }
+    .navbar a:nth-child(3)  { order: 3; }
+    .navbar a:nth-child(4)  { order: 4; }
+    .navbar a:nth-child(6)  { order: 5; }
+    .navbar a:nth-child(5)  { order: 6; }
+    .navbar a:nth-child(7)  { order: 7; }
+    .navbar a:nth-child(8)  { order: 8; }
+    .navbar a:nth-child(9)  { order: 9; }
+    .navbar a:nth-child(10) { order: 10; }
+
+    .digital-library-nav {
+        padding: 7px 10px;
+    }
+}
+/* STUDENT WELCOME TOAST */
+.student-welcome {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    width: min(92vw, 420px);
+    box-sizing: border-box;
+    padding: 11px 16px;
+    border-radius: 12px;
+    background: #eaf8ee;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    box-shadow: 0 8px 24px rgba(0,0,0,.16);
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.student-welcome strong {
+    display: block;
+    font-weight: 700;
+}
+
+.student-welcome-sub {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.student-welcome.is-hidden {
+    display: none;
+}
+
+html[data-theme="dark"] .student-welcome,
+html.dark-mode .student-welcome,
+html.dark .student-welcome,
+body.dark-mode .student-welcome,
+body.dark .student-welcome {
+    background: #143d25 !important;
+    color: #bbf7d0 !important;
+    border-color: #28643d !important;
+}
+
+
+.student-welcome.is-hidden {
+    display: none;
+}
+

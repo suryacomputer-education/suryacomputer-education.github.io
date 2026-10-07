@@ -1,0 +1,1295 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-certificates.html
+Version : v2.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+
+Purpose:
+- Real Certificate Database Management
+- Google Apps Script API
+- Google Sheets Certificate Database
+- No LocalStorage Certificate Data
+==================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Certificate Management | Surya Computer Of Education Center
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+     TOP BAR
+================================================== -->
+
+<div class="top-bar">
+
+    📞 <a href="tel:+917084275870">7084275870</a> |
+
+    ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a>
+
+</div>
+
+
+<!-- ==================================================
+     HEADER
+================================================== -->
+
+<header class="header">
+
+    <img
+        src="assets/images/logo.png"
+        alt="Logo"
+        class="logo"
+    >
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Certificate Management
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- ==================================================
+     NAVIGATION
+================================================== -->
+
+<nav class="navbar">
+
+    <a href="index.html">
+        Home
+    </a>
+
+    <a href="admin.html">
+        Admin Dashboard
+    </a>
+
+    <a href="admin-students.html">
+        Students
+    </a>
+
+    <a href="admin-results.html">
+        Results
+    </a>
+
+    <a href="certificate.html">
+        Public Verification
+    </a>
+
+</nav>
+
+
+<!-- ==================================================
+     CERTIFICATE MANAGEMENT
+================================================== -->
+
+<section class="admin-certificates">
+
+
+    <div class="admin-header">
+
+        <h2>
+            📜 Certificate Management
+        </h2>
+
+        <p>
+            Manage certificates from central database
+        </p>
+
+    </div>
+
+
+    <!-- ==================================================
+         SEARCH
+    ================================================== -->
+
+    <div
+        class="certificate-search"
+        style="
+            max-width:700px;
+            margin:25px auto;
+            text-align:center;
+        "
+    >
+
+        <input
+            type="text"
+            id="certificateSearch"
+            placeholder="Search Certificate ID, Student ID or Student Name"
+            autocomplete="off"
+            style="
+                width:100%;
+                padding:14px;
+                box-sizing:border-box;
+                border-radius:8px;
+                border:1px solid #ccc;
+                font-size:16px;
+            "
+        >
+
+    </div>
+
+
+    <!-- ==================================================
+         STATUS
+    ================================================== -->
+
+    <div
+        id="certificateMessage"
+        style="
+            max-width:700px;
+            margin:15px auto;
+            text-align:center;
+            font-weight:bold;
+        "
+    ></div>
+
+
+    <!-- ==================================================
+         CERTIFICATE CARD
+    ================================================== -->
+
+    <div
+        id="certificateCard"
+        class="certificate-card"
+        style="display:none;"
+    ></div>
+
+
+    <!-- ==================================================
+         NO CERTIFICATE
+    ================================================== -->
+
+    <div
+        id="noCertificate"
+        class="no-certificate"
+        style="
+            display:none;
+            text-align:center;
+            padding:25px;
+        "
+    >
+        ❌ Certificate not found
+    </div>
+
+
+    <!-- ==================================================
+         ALL CERTIFICATES
+    ================================================== -->
+
+    <div
+        id="certificateList"
+        style="
+            max-width:900px;
+            margin:30px auto;
+        "
+    ></div>
+
+
+</section>
+
+
+<!-- ==================================================
+     FOOTER
+================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">+91 7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+
+<script>
+
+/* ==================================================
+   GOOGLE APPS SCRIPT API
+================================================== */
+
+const SURYA_DATABASE_API =
+    window.SURYA_DATABASE_API + "?v=cert-panel-20260829";
+
+
+/* ==================================================
+   ADMIN SESSION
+================================================== */
+
+const SURYA_ADMIN_TOKEN =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_TOKEN"
+    );
+
+
+const SURYA_ADMIN_AUTH =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_AUTH"
+    );
+
+
+/* ==================================================
+   SESSION GUARD
+================================================== */
+
+if (
+    SURYA_ADMIN_AUTH !== "true" ||
+    !SURYA_ADMIN_TOKEN
+) {
+
+    window.location.replace(
+        "admin-login.html"
+    );
+
+}
+
+
+/* ==================================================
+   GLOBAL CERTIFICATES
+================================================== */
+
+let allCertificates = [];
+
+let currentCertificate = null;
+
+
+/* ==================================================
+   ELEMENTS
+================================================== */
+
+const searchInput =
+    document.getElementById(
+        "certificateSearch"
+    );
+
+const messageBox =
+    document.getElementById(
+        "certificateMessage"
+    );
+
+const certificateCard =
+    document.getElementById(
+        "certificateCard"
+    );
+
+const noCertificate =
+    document.getElementById(
+        "noCertificate"
+    );
+
+const certificateList =
+    document.getElementById(
+        "certificateList"
+    );
+
+
+/* ==================================================
+   MESSAGE
+================================================== */
+
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    messageBox.textContent =
+        message;
+
+
+    if (type === "error") {
+
+        messageBox.style.color =
+            "red";
+
+    }
+
+    else if (type === "success") {
+
+        messageBox.style.color =
+            "green";
+
+    }
+
+    else {
+
+        messageBox.style.color =
+            "#333";
+
+    }
+
+}
+
+
+/* ==================================================
+   LOAD CERTIFICATES
+================================================== */
+
+async function loadCertificates() {
+
+    if (!SURYA_ADMIN_TOKEN) {
+        showMessage(
+            "❌ Admin session expired. Please login again."
+        );
+        return;
+    }
+
+    showMessage(
+        "⏳ Loading certificates..."
+    );
+
+
+    certificateCard.style.display =
+        "none";
+
+    noCertificate.style.display =
+        "none";
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+                    body:
+                        JSON.stringify({
+                            action:
+                                "certificates",
+                            token:
+                                SURYA_ADMIN_TOKEN
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server returned " +
+                response.status
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Unable to load certificates."
+            );
+
+        }
+
+
+        allCertificates =
+            Array.isArray(
+                result.certificates
+            )
+                ? result.certificates
+                : [];
+
+
+        showMessage(
+            "✅ Certificates loaded successfully.",
+            "success"
+        );
+
+
+        renderCertificateList(
+            allCertificates
+        );
+
+
+        if (
+            allCertificates.length === 0
+        ) {
+
+            noCertificate.style.display =
+                "block";
+
+            noCertificate.textContent =
+                "📜 No certificate records found.";
+
+            return;
+
+        }
+
+
+        displayCertificate(
+            allCertificates[0]
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "CERTIFICATE LOAD ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ Certificate database error: " +
+            (
+                error.message ||
+                String(error)
+            ),
+            "error"
+        );
+
+
+        certificateCard.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* ==================================================
+   DISPLAY CERTIFICATE
+================================================== */
+
+function displayCertificate(
+    certificate
+) {
+
+    if (!certificate) {
+
+        certificateCard.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    currentCertificate =
+        certificate;
+
+
+    certificateCard.style.display =
+        "block";
+
+    noCertificate.style.display =
+        "none";
+
+
+    const status =
+        String(
+            certificate.Status || ""
+        );
+
+
+    certificateCard.innerHTML = `
+
+        <div class="certificate-card-header">
+
+            <h3>
+                📜 Certificate
+            </h3>
+
+            <span class="certificate-verified">
+                ${escapeHtml(status)}
+            </span>
+
+        </div>
+
+
+        <div class="certificate-details">
+
+            <p>
+                <strong>Certificate ID:</strong>
+                ${escapeHtml(certificate["Certificate ID"])}
+            </p>
+
+            <p>
+                <strong>Student ID:</strong>
+                ${escapeHtml(certificate["Student ID"])}
+            </p>
+
+            <p>
+                <strong>Student Name:</strong>
+                ${escapeHtml(certificate["Student Name"])}
+            </p>
+
+            <p>
+                <strong>Father Name:</strong>
+                ${escapeHtml(certificate["Father Name"])}
+            </p>
+
+            <p>
+                <strong>Course:</strong>
+                ${escapeHtml(certificate["Course"])}
+            </p>
+
+            <p>
+                <strong>Total Marks:</strong>
+                ${escapeHtml(certificate["Total Marks"])}
+            </p>
+
+            <p>
+                <strong>Obtained Marks:</strong>
+                ${escapeHtml(certificate["Obtained Marks"])}
+            </p>
+
+            <p>
+                <strong>Percentage:</strong>
+                ${escapeHtml(certificate["Percentage"])}
+            </p>
+
+            <p>
+                <strong>Grade:</strong>
+                ${escapeHtml(certificate["Grade"])}
+            </p>
+
+            <p>
+                <strong>Result:</strong>
+                ${escapeHtml(certificate["Result"])}
+            </p>
+
+            <p>
+                <strong>Issue Date:</strong>
+                ${formatDate(certificate["Issue Date"])}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                ${escapeHtml(status)}
+            </p>
+
+            <p>
+                <strong>Result ID:</strong>
+                ${escapeHtml(certificate["Result ID"])}
+            </p>
+
+        </div>
+
+
+        <div class="certificate-actions">
+
+            <button
+                type="button"
+                onclick="viewCertificate()"
+            >
+                👁️ View
+            </button>
+
+
+            <button
+                type="button"
+                onclick="printCertificate()"
+            >
+                🖨️ Print
+            </button>
+
+
+            ${
+                status.toLowerCase() === "active"
+                ? `
+                    <button
+                        type="button"
+                        onclick="disableCertificate()"
+                    >
+                        🚫 Disable
+                    </button>
+                `
+                : ""
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==================================================
+   RENDER CERTIFICATE LIST
+================================================== */
+
+function renderCertificateList(
+    certificates
+) {
+
+    certificateList.innerHTML =
+        "";
+
+
+    if (
+        !certificates.length
+    ) {
+
+        return;
+
+    }
+
+
+    const heading =
+        document.createElement(
+            "h3"
+        );
+
+
+    heading.textContent =
+        "📚 Certificate Records (" +
+        certificates.length +
+        ")";
+
+
+    certificateList.appendChild(
+        heading
+    );
+
+
+    certificates.forEach(
+        function(certificate) {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.style.cssText = `
+                padding:15px;
+                margin:10px 0;
+                background:#fff;
+                border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                cursor:pointer;
+            `;
+
+
+            item.innerHTML = `
+
+                <strong>
+                    ${escapeHtml(certificate["Certificate ID"])}
+                </strong>
+
+                <br>
+
+                ${escapeHtml(certificate["Student Name"])}
+
+                <br>
+
+                <small>
+                    Student ID:
+                    ${escapeHtml(certificate["Student ID"])}
+                    |
+                    Status:
+                    ${escapeHtml(certificate["Status"])}
+                </small>
+
+            `;
+
+
+            item.addEventListener(
+                "click",
+                function() {
+
+                    displayCertificate(
+                        certificate
+                    );
+
+                    certificateCard.scrollIntoView({
+                        behavior:"smooth",
+                        block:"start"
+                    });
+
+                }
+            );
+
+
+            certificateList.appendChild(
+                item
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   SEARCH
+================================================== */
+
+searchInput.addEventListener(
+    "input",
+    function() {
+
+        const search =
+            this.value
+                .trim()
+                .toLowerCase();
+
+
+        if (!search) {
+
+            renderCertificateList(
+                allCertificates
+            );
+
+
+            if (
+                allCertificates.length
+            ) {
+
+                displayCertificate(
+                    allCertificates[0]
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        const filtered =
+            allCertificates.filter(
+                function(certificate) {
+
+                    return (
+
+                        String(
+                            certificate["Certificate ID"] || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        String(
+                            certificate["Student ID"] || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                        ||
+
+                        String(
+                            certificate["Student Name"] || ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+
+                    );
+
+                }
+            );
+
+
+        renderCertificateList(
+            filtered
+        );
+
+
+        if (
+            filtered.length > 0
+        ) {
+
+            displayCertificate(
+                filtered[0]
+            );
+
+        }
+
+        else {
+
+            certificateCard.style.display =
+                "none";
+
+            noCertificate.style.display =
+                "block";
+
+            noCertificate.textContent =
+                "❌ Certificate not found.";
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   VIEW CERTIFICATE
+================================================== */
+
+function viewCertificate() {
+
+    if (!currentCertificate) {
+
+        alert(
+            "Certificate record not found."
+        );
+
+        return;
+
+    }
+
+
+    const certificate =
+        currentCertificate;
+
+
+    alert(
+
+        "CERTIFICATE DETAILS\n\n" +
+
+        "Certificate ID: " +
+        (certificate["Certificate ID"] || "") +
+
+        "\n\nStudent ID: " +
+        (certificate["Student ID"] || "") +
+
+        "\n\nStudent Name: " +
+        (certificate["Student Name"] || "") +
+
+        "\n\nFather Name: " +
+        (certificate["Father Name"] || "") +
+
+        "\n\nCourse: " +
+        (certificate["Course"] || "") +
+
+        "\n\nTotal Marks: " +
+        (certificate["Total Marks"] || "") +
+
+        "\n\nObtained Marks: " +
+        (certificate["Obtained Marks"] || "") +
+
+        "\n\nPercentage: " +
+        (certificate["Percentage"] || "") +
+
+        "\n\nGrade: " +
+        (certificate["Grade"] || "") +
+
+        "\n\nResult: " +
+        (certificate["Result"] || "") +
+
+        "\n\nIssue Date: " +
+        formatDate(
+            certificate["Issue Date"]
+        ) +
+
+        "\n\nStatus: " +
+        (certificate["Status"] || "") +
+
+        "\n\nResult ID: " +
+        (certificate["Result ID"] || "")
+
+    );
+
+}
+
+
+/* ==================================================
+   DISABLE CERTIFICATE
+================================================== */
+
+async function disableCertificate() {
+
+    if (!currentCertificate) {
+
+        alert(
+            "Certificate record not found."
+        );
+
+        return;
+
+    }
+
+
+    const certificateId =
+        currentCertificate[
+            "Certificate ID"
+        ];
+
+
+    if (!certificateId) {
+
+        alert(
+            "Certificate ID not found."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+
+            "⚠️ Disable Certificate?\n\n" +
+
+            "Certificate ID: " +
+            certificateId +
+
+            "\n\n" +
+
+            "After disabling, public verification should not treat this certificate as active."
+
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    showMessage(
+        "⏳ Disabling certificate..."
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "disableCertificate",
+
+                            token:
+                                SURYA_ADMIN_TOKEN,
+
+                            certificateId:
+                                certificateId
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Certificate could not be disabled."
+            );
+
+        }
+
+
+        showMessage(
+            "✅ Certificate disabled successfully.",
+            "success"
+        );
+
+
+        await loadCertificates();
+
+
+        const updated =
+            allCertificates.find(
+                function(certificate) {
+
+                    return (
+                        String(
+                            certificate[
+                                "Certificate ID"
+                            ] || ""
+                        )
+                        .toUpperCase()
+                        ===
+                        String(
+                            certificateId
+                        )
+                        .toUpperCase()
+                    );
+
+                }
+            );
+
+
+        if (updated) {
+
+            displayCertificate(
+                updated
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "DISABLE CERTIFICATE ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   PRINT CERTIFICATE
+================================================== */
+
+function printCertificate() {
+
+    if (!currentCertificate) {
+
+        alert(
+            "Certificate record not found."
+        );
+
+        return;
+
+    }
+
+
+    const certificateId =
+        currentCertificate[
+            "Certificate ID"
+        ];
+
+
+    if (!certificateId) {
+
+        alert(
+            "Certificate ID not found."
+        );
+
+        return;
+
+    }
+
+
+    window.location.href =
+        "certificate-print.html?id=" +
+        encodeURIComponent(
+            certificateId
+        );
+
+}
+
+
+/* ==================================================
+   FORMAT DATE
+================================================== */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        !isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day:"2-digit",
+                month:"long",
+                year:"numeric"
+            }
+        );
+
+    }
+
+
+    return String(value);
+
+}
+
+
+/* ==================================================
+   ESCAPE HTML
+================================================== */
+
+function escapeHtml(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadCertificates();
+
+    }
+);
+
+
+/* ==================================================
+   CERTIFICATE ADMIN MODULE READY
+================================================== */
+
+console.log(
+    "SURYA CERTIFICATE ADMIN v2.0.0 READY!"
+);
+
+</script>
+
+
+    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+
+</html>

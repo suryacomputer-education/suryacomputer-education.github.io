@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+<link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+
+<title>Study Materials | Surya Computer Of Education Center</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<link rel="stylesheet" href="AERON/css/aeron.css">
+
+<style>
+.wrap{
+    max-width:900px;
+    margin:25px auto;
+    padding:15px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:14px;
+    margin:15px 0;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.btn{
+    display:inline-block;
+    padding:10px 16px;
+    border-radius:8px;
+    text-decoration:none;
+    background:#1769aa;
+    color:#fff;
+    margin-top:8px;
+}
+
+.material-meta{
+    margin:8px 0;
+}
+
+.subject-title{
+    margin-top:28px;
+    padding-bottom:8px;
+    border-bottom:2px solid rgba(23,105,170,.2);
+}
+
+.empty{
+    padding:20px;
+    text-align:center;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+</style>
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<div class="top-bar">
+📞 <a href="tel:+917084275870">7084275870</a>
+|
+✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+<header class="header">
+<img src="assets/images/logo.png" class="logo" alt="Logo">
+<div class="title">
+<h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+<p>Study Materials</p>
+</div>
+</header>
+
+<main class="wrap">
+
+<h2>📚 Study Materials</h2>
+
+<div id="msg">Loading study materials...</div>
+
+<div id="materials"></div>
+
+</main>
+
+<script src="assets/js/backend-config.js"></script>
+
+<script>
+const API = window.SURYA_DATABASE_API;
+const token = sessionStorage.getItem("SURYA_STUDENT_TOKEN");
+
+function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g,function(m){
+        return {
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[m];
+    });
+}
+
+async function loadStudyMaterials(){
+
+    const msg = document.getElementById("msg");
+    const materialsBox = document.getElementById("materials");
+
+    if(!token){
+        msg.textContent = "❌ Student login required.";
+        return;
+    }
+
+    try{
+
+        const response = await fetch(API,{
+            method:"POST",
+            headers:{
+                "Content-Type":"text/plain;charset=utf-8"
+            },
+            body:JSON.stringify({
+                action:"studyMaterials",
+                token:token
+            })
+        });
+
+        const data = await response.json();
+
+        if(!data.success){
+            throw new Error(data.message || "Unable to load study materials.");
+        }
+
+        const materials = data.materials || [];
+
+        if(!materials.length){
+            msg.textContent = "";
+            materialsBox.innerHTML =
+                '<div class="empty">📚 अभी आपके course के लिए कोई published PDF उपलब्ध नहीं है।</div>';
+            return;
+        }
+
+        msg.textContent = "📚 Available Study Materials";
+
+        const groups = {};
+
+        materials.forEach(function(material){
+
+            const subject =
+                String(material["Subject"] || "").trim() ||
+                "General Study Material";
+
+            if(!groups[subject]){
+                groups[subject] = [];
+            }
+
+            groups[subject].push(material);
+        });
+
+        materialsBox.innerHTML = Object.keys(groups).map(function(subject){
+
+            const items = groups[subject];
+
+            return `
+                <h3 class="subject-title">📖 ${esc(subject)}</h3>
+
+                ${items.map(function(material){
+
+                    const title =
+                        String(material["Title"] || "Study Material");
+
+                    const course =
+                        String(material["Course"] || "");
+
+                    const description =
+                        String(material["Description"] || "");
+
+                    const fileName =
+                        String(material["File Name"] || "PDF");
+
+                    const viewURL =
+                        String(material["ViewURL"] || "");
+
+                    return `
+                        <div class="card">
+
+                            <h3>📄 ${esc(title)}</h3>
+
+                            ${course
+                                ? `<p class="material-meta"><b>Course:</b> ${esc(course)}</p>`
+                                : ""}
+
+                            <p class="material-meta">
+                                <b>PDF:</b> ${esc(fileName)}
+                            </p>
+
+                            ${description
+                                ? `<p>${esc(description)}</p>`
+                                : ""}
+
+                            ${String(material.accessMode||"FREE").toUpperCase()==="PAID" && String(material.accessState||"").toUpperCase()!=="UNLOCKED"
+                                ? `<p><b>🔒 PAID</b> — Fee payment/verification required to unlock.</p>`
+                                : (viewURL ? `<a class="btn"
+                                      href="${esc(viewURL)}"
+                                      target="_blank"
+                                      rel="noopener">
+                                      📖 Read PDF
+                                   </a>`
+                                : "")
+                            }
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+            `;
+
+        }).join("");
+
+    }catch(error){
+
+        msg.textContent =
+            "❌ " + (error.message || "Unable to load study materials.");
+
+    }
+}
+
+loadStudyMaterials();
+</script>
+
+<script src="assets/js/project-ui.js"></script>
+<script src="AERON/config/aeron-config.js"></script>
+<script src="AERON/js/aeron-tts.js" defer></script>
+<script src="AERON/js/aeron-widget.js" defer></script>
+
+</body>
+</html>

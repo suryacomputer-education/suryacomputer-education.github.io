@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Mock Test Management | Surya Computer Of Education Center</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+<style>
+.mock-wrap{max-width:1100px;margin:auto;padding:18px}
+.mock-panel{background:var(--cimp-panel,#fff);color:var(--cimp-text,#172033);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.mock-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mock-grid input,.mock-grid select,.mock-grid textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:inherit;color:inherit}
+.mock-btn{padding:11px 16px;border:0;border-radius:9px;cursor:pointer;margin:5px}
+.mock-btn.primary{background:#1769aa;color:#fff}.mock-btn.danger{background:#c62828;color:#fff}.mock-btn.green{background:#198754;color:#fff}
+.question-row{border:1px solid #dbe2ea;border-radius:10px;padding:14px;margin:12px 0;background:rgba(127,127,127,.04)}
+.option-row{display:grid;grid-template-columns:90px 1fr;gap:8px;margin:7px 0;align-items:center}
+.option-row input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:8px;background:inherit;color:inherit}
+.small{font-size:13px;opacity:.78}#message{font-weight:700;margin:12px 0}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.filter-row select{padding:10px;border-radius:8px}
+@media(max-width:700px){.mock-grid{grid-template-columns:1fr}.option-row{grid-template-columns:1fr}}
+</style>
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body>
+<div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757@gmail.com">sunilkumar5757@gmail.com</a></div>
+<header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Mock Test Management — Subject-wise CBT</p></div></header>
+<nav class="navbar"><a href="admin.html">Admin Dashboard</a><a href="admin-courses.html">Courses & Subjects</a><a href="admin-students.html">Students</a><a href="admin-results.html">Results</a><a href="admin-certificates.html">Certificates</a></nav>
+
+<main class="mock-wrap">
+<h2>📝 Mock Test Management</h2>
+<p class="small">हर Mock Test एक active Course + Subject से जुड़ा रहेगा। Student को उसके Course के tests पहले दिखेंगे और All Courses भी उपलब्ध रहेगा।</p>
+<div id="message"></div>
+
+<section class="mock-panel">
+<h3>➕ Create / Edit Subject-wise CBT Test</h3>
+<div class="mock-grid">
+<input id="testId" placeholder="Test ID (blank = automatic)" autocomplete="off">
+<input id="title" placeholder="Test title" autocomplete="off">
+<div id="courseSubjectFields" style="display:flex;gap:12px;flex-wrap:wrap">
+  <select id="courseSelect"><option value="">-- Select Course --</option></select>
+  <select id="subjectSelect"><option value="">-- Select Subject --</option></select>
+</div>
+<input id="duration" type="number" min="1" value="30" placeholder="Duration (minutes)">
+<input id="totalMarks" type="number" min="1" value="100" placeholder="Total marks">
+<select id="status"><option value="Draft">Draft</option><option value="Published">Published</option></select>
+<label>Access Mode</label><select id="accessMode"><option value="FREE">FREE — सब students</option><option value="PAID">PAID — payment/verification required</option></select>
+<label>Audience</label>
+<select id="audience">
+  <option value="COMPUTER">💻 Computer Students</option>
+  <option value="LIBRARY">📚 Library Students</option>
+  <option value="BOTH" selected>💻📚 Both</option>
+</select>
+
+<label>Exam Type</label>
+<select id="examType">
+  <option value="MOCK" selected>📝 Mock Test</option>
+  <option value="CBT">🖥️ Official CBT</option>
+</select>
+
+<!-- Legacy field: old MockTests compatibility -->
+<select id="libraryAccess" style="display:none">
+  <option value="YES">YES</option>
+  <option value="NO">NO</option>
+</select>
+<textarea id="description" rows="3" placeholder="Instructions / description"></textarea>
+</div>
+<div>
+<button class="mock-btn primary" onclick="saveTest()">💾 Save Test</button>
+<button class="mock-btn" onclick="clearForm()">🧹 Clear</button>
+</div>
+</section>
+
+<section class="mock-panel">
+<h3>📚 Tests</h3>
+<div class="filter-row">
+<select id="listCourseFilter" onchange="renderTests()"><option value="">All Courses</option></select>
+<select id="listSubjectFilter" onchange="renderTests()"><option value="">All Subjects</option></select>
+</div>
+<div id="tests">Loading...</div>
+</section>
+
+<section class="mock-panel">
+<h3>❓ CBT Question Editor</h3>
+<p class="small">Question order is the database order. Correct answer is never sent to students before submission.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><a class="mock-btn" href="admin-question-bank.html">📚 Central Question Bank</a><a class="mock-btn" href="admin-question-bank.html#import">📄 PDF → Questions</a><button class="mock-btn primary" type="button" onclick="newManualQuestion()">➕ Manual Question</button></div>
+<div id="questionEditor">Select a test first.</div>
+</section>
+
+<section class="mock-panel">
+<h3>📊 Attempts</h3>
+<div id="attempts">Select a test to view attempts.</div>
+</section>
+</main>
+
+<script>
+"use strict";
+const API= window.SURYA_DATABASE_API;
+const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+let selectedTest=null, allTests=[], allCourses=[], allSubjects=[];
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function msg(t,err=false){const x=document.getElementById("message");x.textContent=t;x.style.color=err?"#c62828":"#16823b";}
+async function api(body){
+ const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:TOKEN})});
+ const d=await r.json(); if(!d.success) throw new Error(d.message||"Request failed"); return d;
+}
+
+async function loadSetupData(){
+ try{
+  const [c,s,t]=await Promise.all([api({action:"courses"}),api({action:"courseSubjects"}),api({action:"mockTests"})]);
+  allCourses=(c.courses||[]).filter(x=>String(x["Status"]||"Active").toLowerCase()==="active");
+  allSubjects=(s.subjects||[]).filter(x=>String(x["Status"]||"Active").toLowerCase()==="active");
+  allTests=t.tests||[];
+  populateCourseSelect();
+  populateListFilters();
+  renderTests();
+  document.getElementById("audience").onchange=updateAudienceFields;
+updateAudienceFields();
+ }catch(e){msg("❌ "+e.message,true);}
+}
+function populateCourseSelect(){
+ const select=document.getElementById("courseSelect");
+ select.innerHTML='<option value="">-- Select Course --</option>';
+ allCourses.forEach(c=>{const id=c["Course ID"]||c.courseId||"",name=c["Course Name"]||c.courseName||id;select.insertAdjacentHTML("beforeend",`<option value="${esc(id)}">${esc(id)} — ${esc(name)}</option>`);});
+ select.onchange=populateSubjectSelect;
+ populateSubjectSelect();
+}
+function updateAudienceFields(){
+ const audience=document.getElementById("audience").value;
+ const fields=document.getElementById("courseSubjectFields");
+
+ if(audience==="LIBRARY"){
+   fields.style.display="none";
+ }else{
+   fields.style.display="flex";
+ }
+}
+function populateSubjectSelect(){
+ const course=document.getElementById("courseSelect").value;
+ const select=document.getElementById("subjectSelect");
+ const list=allSubjects.filter(s=>String(s.Course||s.course||"").trim().toLowerCase()===course.trim().toLowerCase());
+ select.innerHTML='<option value="">-- Select Subject --</option>';
+ list.forEach(s=>{const id=s["Subject ID"]||s.subjectId||"",name=s["Subject Name"]||s.subjectName||id;select.insertAdjacentHTML("beforeend",`<option value="${esc(id)}">${esc(id)} — ${esc(name)}</option>`);});
+}
+function populateListFilters(){
+ const c=document.getElementById("listCourseFilter"),s=document.getElementById("listSubjectFilter");
+ c.innerHTML='<option value="">All Courses</option>'+allCourses.map(x=>{const id=x["Course ID"]||x.courseId||"";return `<option value="${esc(id)}">${esc(id)}</option>`}).join("");
+ s.innerHTML='<option value="">All Subjects</option>'+allSubjects.map(x=>{const id=x["Subject ID"]||x.subjectId||"",name=x["Subject Name"]||x.subjectName||id;return `<option value="${esc(id)}">${esc(id)} — ${esc(name)}</option>`}).join("");
+}
+function renderTests(){
+ const cf=document.getElementById("listCourseFilter").value.toLowerCase(),sf=document.getElementById("listSubjectFilter").value.toLowerCase();
+ const arr=allTests.filter(t=>(!cf||String(t["Course"]||"").toLowerCase()===cf)&&(!sf||String(t["Subject ID"]||"").toLowerCase()===sf));
+ document.getElementById("tests").innerHTML=arr.length?arr.map(t=>`
+ <div class="question-row">
+  <b>${esc(t["Test ID"])} — ${esc(t["Title"])}</b>
+  <br>📚 ${esc(t["Course"])} &nbsp; | &nbsp; 📖 ${esc(t["Subject Name"])} (${esc(t["Subject ID"])})
+  <br><span class="small">⏱ ${esc(t["Duration"])} min • 📝 ${esc(t["Total Marks"])} marks • ${esc(t["Status"])} • 🔐 ${esc(t["Access Mode"] || "FREE")} • 🎯 ${esc(t["Exam Type"] || "MOCK")} • 📚 Library: ${esc(t["Library Access"] || "YES")}</span>
+  <p>${esc(t["Description"])}</p>
+  <button class="mock-btn" type="button" onclick='selectTest(${JSON.stringify(t).replace(/'/g, '\\u0027')})'>❓ Questions</button>
+  <button class="mock-btn" type="button" onclick='editTest(${JSON.stringify(t).replace(/'/g, '\\u0027')})'>✏️ Edit</button>
+  <button class="mock-btn" type="button" onclick='toggleTest(${JSON.stringify(t).replace(/'/g, '\\u0027')})'>${String(t["Status"])==="Published"?"🔕 Unpublish":"📢 Publish"}</button>
+ </div>`).join(""):"📭 No matching tests.";
+}
+function editTest(t){
+ document.getElementById("testId").value=t["Test ID"]||"";
+ document.getElementById("title").value=t["Title"]||"";
+ document.getElementById("courseSelect").value=t["Course"]||"";
+ populateSubjectSelect();
+ document.getElementById("subjectSelect").value=t["Subject ID"]||"";
+ document.getElementById("duration").value=t["Duration"]||30;
+ document.getElementById("totalMarks").value=t["Total Marks"]||100;
+ document.getElementById("description").value=t["Description"]||"";
+ document.getElementById("status").value=t["Status"]||"Draft";
+document.getElementById("accessMode").value=t["Access Mode"]||"FREE";
+document.getElementById("libraryAccess").value=t["Library Access"]||"YES";
+
+const audienceValue=String(t["Audience"]||"").trim().toUpperCase();
+document.getElementById("audience").value=
+  ["COMPUTER","LIBRARY","BOTH"].indexOf(audienceValue)>=0
+    ? audienceValue
+    : (String(t["Library Access"]||"YES").toUpperCase()==="NO" ? "COMPUTER" : "BOTH");
+
+const examTypeValue=String(t["Exam Type"]||"MOCK").trim().toUpperCase();
+document.getElementById("examType").value=
+  examTypeValue==="CBT" ? "CBT" : "MOCK";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function clearForm(){
+ ["testId","title","duration","totalMarks","description"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("courseSelect").value="";
+ populateSubjectSelect();
+ document.getElementById("status").value="Draft";
+document.getElementById("accessMode").value="FREE";
+document.getElementById("audience").value="BOTH";
+document.getElementById("examType").value="MOCK";
+document.getElementById("libraryAccess").value="YES";
+}
+
+async function saveTest(){
+ try{
+  const testIdValue=document.getElementById("testId").value.trim();
+  const titleValue=document.getElementById("title").value.trim();
+  const courseValue=document.getElementById("courseSelect").value;
+  const subjectValue=document.getElementById("subjectSelect").value;
+  const durationValue=document.getElementById("duration").value;
+  const totalMarksValue=document.getElementById("totalMarks").value;
+  const statusValue=document.getElementById("status").value;
+  const descriptionValue=document.getElementById("description").value.trim();
+  const audienceValue=document.getElementById("audience").value;
+  const examTypeValue=document.getElementById("examType").value;
+  if(!titleValue) throw new Error("Test title is required.");
+
+if(audienceValue!=="LIBRARY" && (!courseValue || !subjectValue)){
+  throw new Error("Course and Subject are required for Computer/Both tests.");
+}
+  await api({action:"saveMockTest",test:{testId:testIdValue,title:titleValue,course:courseValue,subjectId:subjectValue,duration:durationValue,totalMarks:totalMarksValue,status:statusValue,accessMode:document.getElementById("accessMode").value,libraryAccess:document.getElementById("libraryAccess").value,audience:audienceValue,examType:examTypeValue,description:descriptionValue}});
+  msg("✅ Subject-wise CBT test saved.");clearForm();const d=await api({action:"mockTests"});allTests=d.tests||[];renderTests();
+ }catch(e){msg("❌ "+e.message,true);}
+}
+async function toggleTest(t){
+ try{await api({action:"setMockTestStatus",testId:t["Test ID"],status:String(t["Status"])==="Published"?"Draft":"Published"});msg("✅ Test status updated.");const d=await api({action:"mockTests"});allTests=d.tests||[];renderTests();}
+ catch(e){msg("❌ "+e.message,true);}
+}
+async function selectTest(t){selectedTest=t;await loadQuestions();await loadAttempts();}
+function questionForm(q={}){
+ return `<div class="question-row">
+ <input id="qText" value="${esc(q["Question"]||"")}" placeholder="Question" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:8px;background:inherit;color:inherit">
+ <div class="option-row"><span>Option A</span><input id="optA" value="${esc(q["Option A"]||"")}" placeholder="Option A"></div>
+ <div class="option-row"><span>Option B</span><input id="optB" value="${esc(q["Option B"]||"")}" placeholder="Option B"></div>
+ <div class="option-row"><span>Option C</span><input id="optC" value="${esc(q["Option C"]||"")}" placeholder="Option C"></div>
+ <div class="option-row"><span>Option D</span><input id="optD" value="${esc(q["Option D"]||"")}" placeholder="Option D"></div>
+ <select id="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+ <input id="marks" type="number" min="1" value="${esc(q["Marks"]||1)}" placeholder="Marks">
+ <button class="mock-btn primary" type="button" onclick='saveQuestion(${JSON.stringify(q).replace(/'/g, '\\u0027')})'>💾 Save Question</button>
+ </div>`;
+}
+async function loadQuestions(){
+ if(!selectedTest){document.getElementById("questionEditor").textContent="Select a test first.";return;}
+ try{const d=await api({action:"mockQuestions",testId:selectedTest["Test ID"]});const arr=d.questions||[];
+ document.getElementById("questionEditor").innerHTML=`<h4>📚 ${esc(selectedTest["Course"])} — 📖 ${esc(selectedTest["Subject Name"])} — ${esc(selectedTest["Title"])}</h4>${questionForm()}<hr>${arr.map(q=>`<div class="question-row"><b>${esc(q["Question ID"])}</b><br>${esc(q["Question"])}<br><span class="small">A: ${esc(q["Option A"])} | B: ${esc(q["Option B"])} | C: ${esc(q["Option C"])} | D: ${esc(q["Option D"])}</span><br><button class="mock-btn" type="button" onclick='loadQuestionIntoForm(${JSON.stringify(q).replace(/'/g, '\\u0027')})'>✏️ Edit</button></div>`).join("")}`;
+ }catch(e){msg("❌ "+e.message,true);}
+}
+function loadQuestionIntoForm(q){
+ document.getElementById("questionEditor").innerHTML=`<h4>✏️ Edit Question</h4>${questionForm(q)}`;
+ document.getElementById("correct").value=q["Correct Answer"]||"A";
+}
+function newManualQuestion(){ if(!selectedTest){msg("पहले Test select करो.",true); return;} document.getElementById("questionEditor").innerHTML=`<h4>➕ Manual Question</h4>${questionForm()}`; window.scrollTo({top:document.getElementById("questionEditor").offsetTop-20,behavior:"smooth"});}
+async function saveQuestion(q){
+ try{
+  const saved=await api({action:"saveQuestionBankQuestion",question:{questionId:q["Question ID"]||"",course:selectedTest["Course"],subjectId:selectedTest["Subject ID"],subjectName:selectedTest["Subject Name"],question:document.getElementById("qText").value,optionA:document.getElementById("optA").value,optionB:document.getElementById("optB").value,optionC:document.getElementById("optC").value,optionD:document.getElementById("optD").value,correctAnswer:document.getElementById("correct").value,marks:document.getElementById("marks").value,accessMode:selectedTest["Access Mode"]||"FREE",sourceType:"MANUAL",sourceName:"Mock Test Editor",status:"ACTIVE"}});
+  await api({action:"attachQuestionBankToMock",questionIds:[saved.question["Question ID"]],testId:selectedTest["Test ID"]});
+  msg("✅ Question saved.");loadQuestions();
+ }catch(e){msg("❌ "+e.message,true);}
+}
+async function loadAttempts(){
+ if(!selectedTest)return;
+ try{const d=await api({action:"mockAttempts",testId:selectedTest["Test ID"]});const arr=d.attempts||[];
+ attempts.innerHTML=arr.length?arr.map(a=>`<div class="question-row"><b>${esc(a["Student ID"])}</b> — ${esc(a["Student Name"])}<br>Score: ${esc(a["Score"])} / ${esc(a["Total Marks"])} | ${esc(a["Percentage"])}% | Grade ${esc(a["Grade"])} | ${esc(a["Result"])}<br><span class="small">${esc(a["Submitted At"])}</span></div>`).join(""):"No attempts yet.";
+ }catch(e){attempts.textContent="Unable to load attempts.";}
+}
+loadSetupData();
+</script>
+<script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

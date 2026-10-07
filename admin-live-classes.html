@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Live Classes Management</title><link rel="stylesheet" href="assets/css/style.css"><link rel="stylesheet" href="assets/css/responsive.css"><style>.wrap{max-width:1000px;margin:30px auto;padding:18px}.card{background:#fff;padding:20px;border-radius:14px;margin:15px 0;box-shadow:0 4px 18px rgba(0,0,0,.08)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.grid input,.grid textarea,.grid select{padding:11px;width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:8px}.btn{padding:10px 16px;border:0;border-radius:8px;cursor:pointer;margin:5px}.msg{font-weight:600}</style>    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head><body><main class="wrap">
+<h2>🔴 Live Classes Management</h2>
+
+<div class="card">
+<div class="grid">
+<input id="liveClassId" placeholder="Class ID (blank = auto)">
+<input id="liveTitle" placeholder="Class title">
+<input id="liveCourse" placeholder="Course (blank = all)">
+<input id="liveTeacher" placeholder="Teacher">
+<input id="liveDate" type="date">
+<input id="liveStart" type="time">
+<input id="liveEnd" type="time">
+<input id="liveUrl" placeholder="Join URL">
+<textarea id="liveDesc" placeholder="Description"></textarea>
+
+<select id="liveStatus">
+<option value="Draft">Draft</option>
+<option value="Published">Published</option>
+</select>
+<select id="liveAccessMode"><option value="FREE">FREE — सब students</option><option value="PAID">PAID — payment required</option></select>
+</div>
+
+<button class="btn" onclick="saveLiveClass()">💾 Save</button>
+<button class="btn" onclick="clearLiveForm()">🧹 Clear</button>
+
+<div id="msg" class="msg"></div>
+</div>
+
+<div id="list"></div>
+</main><script>
+const API =
+window.SURYA_DATABASE_API;
+
+const token =
+sessionStorage.getItem("SURYA_ADMIN_TOKEN");
+
+const auth =
+sessionStorage.getItem("SURYA_ADMIN_AUTH");
+
+if (auth !== "true" || !token) {
+    location.replace("admin-login.html");
+}
+
+const $ = id => document.getElementById(id);
+
+function esc(v) {
+    return String(v ?? "").replace(
+        /[&<>"']/g,
+        m => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[m])
+    );
+}
+
+async function api(body) {
+
+    const r = await fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            ...body,
+            token
+        })
+    });
+
+    const d = await r.json();
+
+    if (!d.success) {
+        throw new Error(
+            d.message || "Request failed."
+        );
+    }
+
+    return d;
+}
+
+function normalizeTime(v) {
+
+    if (v === null || v === undefined || v === "") {
+        return "";
+    }
+
+    if (v instanceof Date) {
+        return v.toISOString().slice(11,16);
+    }
+
+    const x = String(v).trim();
+
+    // Google Apps Script Date string
+    const iso = x.match(
+        /T(\d{2}):(\d{2})/
+    );
+
+    if (iso) {
+        return iso[1] + ":" + iso[2];
+    }
+
+    // HH:mm:ss
+    const normal = x.match(
+        /^(\d{1,2}):(\d{2})(?::\d{2})?$/
+    );
+
+    if (normal) {
+        return String(normal[1]).padStart(2,"0")
+             + ":" + normal[2];
+    }
+
+    return x;
+}
+
+function normalizeDate(v) {
+
+    const x = String(v ?? "").trim();
+
+    if (!x) return "";
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(x)) {
+        return x;
+    }
+
+    const m = x.match(
+        /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/
+    );
+
+    if (m) {
+        return `${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`;
+    }
+
+    const d = new Date(x);
+
+    if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+
+    return "";
+}
+
+async function saveLiveClass() {
+
+    const data = {
+
+        classId: $("liveClassId").value.trim(),
+
+        title: $("liveTitle").value.trim(),
+
+        course: $("liveCourse").value.trim(),
+
+        teacher: $("liveTeacher").value.trim(),
+
+        date: $("liveDate").value,
+
+        startTime: $("liveStart").value,
+
+        endTime: $("liveEnd").value,
+
+        joinUrl: $("liveUrl").value.trim(),
+
+        description: $("liveDesc").value.trim(),
+
+        status: $("liveStatus").value,
+        accessMode: $("liveAccessMode").value
+    };
+
+    if (!data.title) {
+        $("msg").textContent =
+        "❌ Class title required.";
+        return;
+    }
+
+    if (!data.date) {
+        $("msg").textContent =
+        "❌ Date required.";
+        return;
+    }
+
+    if (!data.joinUrl) {
+        $("msg").textContent =
+        "❌ Join URL required.";
+        return;
+    }
+
+    try {
+
+        $("msg").textContent =
+        "⏳ Saving...";
+
+        await api({
+            action: "liveSave",
+            class: data
+        });
+
+        $("msg").textContent =
+        "✅ Saved successfully.";
+
+        await loadLiveClasses();
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+async function loadLiveClasses() {
+
+    try {
+
+        const d = await api({
+            action: "liveAdminList"
+        });
+
+        const classes = d.classes || [];
+
+        $("list").innerHTML =
+        classes.map(c => {
+
+            const published =
+            String(c.Status).toLowerCase() ===
+            "published";
+
+            return `
+            <div class="card">
+
+            <b>${esc(c["Class ID"])}</b>
+            — ${esc(c.Title)}
+            | ${esc(c.Course)}
+            | <strong>${esc(c.Status)}</strong>
+
+            <br>
+
+            ${esc(normalizeDate(c.Date))}
+            ${esc(normalizeTime(c["Start Time"]))}
+            -
+            ${esc(normalizeTime(c["End Time"]))}
+
+            <br>
+            🔐 Access: ${esc(c["Access Mode"] || "FREE")}
+
+            <button class="btn"
+                onclick='editLiveClass(${JSON.stringify(c)})'>
+                Edit
+            </button>
+
+            <button class="btn"
+                onclick='deleteLiveClass("${esc(c["Class ID"])}")'>
+                Delete
+            </button>
+
+            </div>`;
+        }).join("") || "No classes.";
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+function editLiveClass(c) {
+
+    $("liveClassId").value =
+        c["Class ID"] || "";
+
+    $("liveTitle").value =
+        c.Title || "";
+
+    $("liveCourse").value =
+        c.Course || "";
+
+    $("liveTeacher").value =
+        c.Teacher || "";
+
+    $("liveDate").value =
+        normalizeDate(c.Date);
+
+    $("liveStart").value =
+        normalizeTime(c["Start Time"]);
+
+    $("liveEnd").value =
+        normalizeTime(c["End Time"]);
+
+    $("liveUrl").value =
+        c["Join URL"] || "";
+
+    $("liveDesc").value =
+        c.Description || "";
+
+    $("liveStatus").value =
+        String(c.Status || "Draft");
+
+    $("liveAccessMode").value =
+        String(c["Access Mode"] || "FREE").toUpperCase()==="PAID" ? "PAID" : "FREE";
+
+    $("msg").textContent =
+        "✏️ Editing " + c["Class ID"];
+}
+
+function clearLiveForm() {
+
+    $("liveClassId").value = "";
+    $("liveTitle").value = "";
+    $("liveCourse").value = "";
+    $("liveTeacher").value = "";
+    $("liveDate").value = "";
+    $("liveStart").value = "";
+    $("liveEnd").value = "";
+    $("liveUrl").value = "";
+    $("liveDesc").value = "";
+    $("liveStatus").value = "Draft";
+    $("liveAccessMode").value = "FREE";
+    $("msg").textContent = "";
+}
+
+async function deleteLiveClass(id) {
+
+    if (!confirm("Delete this live class?")) {
+        return;
+    }
+
+    try {
+
+        await api({
+            action: "liveDelete",
+            classId: id
+        });
+
+        $("msg").textContent =
+        "✅ Deleted.";
+
+        await loadLiveClasses();
+
+    } catch (e) {
+
+        $("msg").textContent =
+        "❌ " + e.message;
+    }
+}
+
+loadLiveClasses();
+</script>    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body></html>

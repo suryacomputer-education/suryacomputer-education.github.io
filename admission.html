@@ -1,0 +1,1214 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admission.html
+Version : v1.1.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 07-08-2026
+Updated : 12-08-2026
+
+Purpose :
+Online Admission + Student Photo Storage
+==================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admission | Surya Computer Of Education Center
+    </title>
+    <meta name="description" content="Apply for computer course admission at SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli, Uttar Pradesh.">
+    <meta name="keywords" content="computer admission Kamalpur, computer course admission Chandauli, CCC admission, DCA admission, ADCA admission">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://suryacomputer-education.github.io/admission.html">
+    <meta property="og:title" content="Computer Course Admission | Surya Computer Kamalpur">
+    <meta property="og:description" content="Apply for computer course admission at SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli, Uttar Pradesh.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suryacomputer-education.github.io/admission.html">
+    <meta property="og:image" content="assets/images/favicon-512.png">
+
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+<script src="assets/js/student-photo.js"></script>
+<script src="assets/js/student-signature-upload.js"></script>
+<script src="assets/js/student-marcsheet-upload.js"></script>
+  <script>
+console.log(
+    "compressStudentPhoto:",
+    typeof compressStudentPhoto
+);
+  </script>
+<script src="assets/js/mobile-ui.js"></script>
+<script src="assets/js/aadhaar-manager.js"></script>
+<script src="assets/js/student-aadhaar-upload.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+<body>
+
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+
+    📞 <a href="tel:+917084275870">7084275870</a> |
+
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a> |
+
+    ▶️ YouTube: <a href="https://www.youtube.com/@sunilkumar-1cmd" target="_blank" rel="noopener"> @sunilkumar-1cmd</a>
+
+</div>
+
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img
+        src="assets/images/logo.png"
+        alt="Logo"
+        class="logo"
+    >
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+    </div>
+
+</header>
+
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">
+        Home
+    </a>
+
+    <a href="about.html">
+        About
+    </a>
+
+    <a href="courses.html">
+        Courses
+    </a>
+
+    <a href="admission.html">
+        Admission
+    </a>
+
+    <a href="gallery.html">
+        Gallery
+    </a>
+
+    <a href="contact.html">
+        Contact
+    </a>
+
+</nav>
+
+
+<!--==================================================
+ADMISSION SECTION
+==================================================-->
+
+<section class="admission">
+
+    <h2>
+        Online Admission Form
+    </h2>
+
+    <p>
+        Fill in your details carefully.
+    </p>
+
+</section>
+
+
+<!--==================================================
+ADMISSION FORM
+==================================================-->
+
+<form
+    class="admission-form"
+    id="admissionForm"
+>
+
+    <!-- Anti-bot honeypot: real users never see or fill this field. -->
+    <input type="text" id="website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
+
+    <!-- STUDENT NAME -->
+
+    <input
+        type="text"
+        id="studentName"
+        placeholder="Student Full Name"
+        required
+    >
+
+
+    <!-- FATHER NAME -->
+
+    <input
+        type="text"
+        id="fatherName"
+        placeholder="Father's Name"
+        required
+    >
+
+
+    <!-- MOTHER NAME -->
+
+    <input
+        type="text"
+        id="motherName"
+        placeholder="Mother's Name"
+    >
+
+
+
+    <!-- DATE OF BIRTH -->
+
+<label for="dateOfBirth">
+       Date of Birth
+</label>
+
+<input
+    type="date"
+    id="dateOfBirth"
+    name="dateOfBirth"
+    required
+>
+
+
+    <!-- COURSE -->
+
+    <select
+        id="course"
+        required
+    >
+
+        <option value="">
+            Select Course
+        </option>
+
+        <option>
+            CCC
+        </option>
+
+        <option>
+            DCA
+        </option>
+
+        <option>
+            ADCA
+        </option>
+
+        <option>
+            Tally Prime
+        </option>
+
+        <option>
+            Typing
+        </option>
+
+        <option>
+            Basic Computer
+        </option>
+
+    </select>
+
+
+    <!-- MOBILE -->
+
+    <input
+        type="tel"
+        id="mobile"
+        placeholder="Mobile Number"
+        required
+    >
+
+
+    <!-- EMAIL -->
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Registered Gmail Address"
+        required
+    >
+
+
+    <!-- ADDRESS -->
+
+    <textarea
+        id="address"
+        placeholder="Full Address"
+        rows="4"
+    ></textarea>
+
+
+    <!--==================================================
+         STUDENT PHOTO
+    ==================================================-->
+
+    <label for="studentPhoto">
+
+        📷 Upload Student Photo
+
+    </label>
+
+
+    <input
+        type="file"
+        id="studentPhoto"
+        accept="image/*"
+        required
+    >
+
+
+    <!-- PHOTO PREVIEW -->
+
+    <div
+        id="photoPreviewContainer"
+        style="
+            display:none;
+            text-align:center;
+            margin:10px 0;
+        "
+    >
+
+        <p>
+            <strong>
+                Photo Preview
+            </strong>
+        </p>
+
+        <img
+            id="photoPreview"
+            alt="Student Photo Preview"
+            style="
+                width:120px;
+                height:150px;
+                object-fit:cover;
+                border:2px solid #222;
+                border-radius:5px;
+            "
+        >
+
+    </div>
+
+
+    <!--==================================================
+     STUDENT SIGNATURE
+==================================================-->
+
+<label for="studentSignatureInput">
+
+    ✍️ Upload Student Signature
+
+</label>
+
+<input
+    type="file"
+    id="studentSignatureInput"
+    accept="image/*"
+    required
+>
+
+<!-- SIGNATURE PREVIEW -->
+
+<div
+    style="
+        text-align:center;
+        margin:10px 0;
+    "
+>
+
+    <p>
+        <strong>
+            Signature Preview
+        </strong>
+    </p>
+
+    <img
+        id="studentSignaturePreview"
+        src="assets/images/signature-placeholder.svg"
+        alt="Student Signature Preview"
+        style="
+            width:220px;
+            height:80px;
+            object-fit:contain;
+            border:1px solid #222;
+            border-radius:5px;
+        "
+    >
+
+</div>
+  <!--==================================================
+     STUDENT Marcsheet
+==================================================-->
+
+<label for="studentMarcsheetInput">
+
+    ✍️ Upload Student Marcsheet
+
+</label>
+
+<input
+    type="file"
+    id="studentMarcsheetInput"
+    accept="image/*"
+>
+
+<!-- Marcsheet PREVIEW -->
+
+<div
+    style="
+        text-align:center;
+        margin:10px 0;
+    "
+>
+
+    <p>
+        <strong>
+            Marcsheet Preview
+        </strong>
+    </p>
+
+    <img
+        id="studentMarcsheetPreview"
+        src="assets/images/Marcsheet-placeholder.svg"
+        alt="Student Marcsheet Preview"
+        style="
+            width:120px;
+            height:200px;
+            object-fit:contain;
+            border:1px solid #222;
+            border-radius:5px;
+        "
+    >
+
+</div>
+
+    <!--==================================================
+         AADHAAR
+    ==================================================-->
+
+    <label for="aadhaarCard">
+
+        📄 Upload Aadhaar Card
+
+    </label>
+
+
+    <input
+        type="file"
+        id="aadhaarCard"
+        accept="image/*,.pdf"
+    >
+    <!-- AADHAAR PREVIEW -->
+
+<div
+    id="aadhaarPreviewContainer"
+    style="
+        display:none;
+        text-align:center;
+        margin:10px 0;
+    "
+>
+
+    <p>
+        <strong>
+            Aadhaar Preview
+        </strong>
+    </p>
+
+    <img
+        id="aadhaarPreview"
+        alt="Aadhaar Preview"
+        style="
+            max-width:100%;
+            width:300px;
+            max-height:400px;
+            object-fit:contain;
+            border:2px solid #222;
+            border-radius:5px;
+        "
+    >
+
+    <p
+        id="aadhaarPdfPreview"
+        style="
+            display:none;
+            font-weight:bold;
+        "
+    >
+        📄 Aadhaar PDF selected
+    </p>
+
+</div>
+
+    <!-- SUBMIT -->
+    <button
+    type="submit"
+    id="submitAdmissionBtn"
+>
+    Submit Admission
+    </button>
+
+
+
+
+</form>
+
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer>
+
+    <p>
+
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+
+    </p>
+
+</footer>
+  <script>
+/* ==================================================
+   SURYA CEC CENTRAL DATABASE API
+================================================== */
+
+const SURYA_DATABASE_API =
+    window.SURYA_DATABASE_API;
+
+
+/* ==================================================
+   FILE → BASE64
+   Existing File objects को बिना बदले backend के
+   लिए Base64 में convert करता है.
+================================================== */
+
+function fileToBase64(file) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            if (!file) {
+
+                resolve("");
+
+                return;
+
+            }
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function() {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "File could not be read."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(file);
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   ADMISSION FORM
+================================================== */
+
+const admissionForm =
+    document.getElementById(
+        "admissionForm"
+    );
+
+
+/* ==================================================
+   PHOTO INPUT
+================================================== */
+
+const studentPhotoInput =
+    document.getElementById(
+        "studentPhoto"
+    );
+
+
+const photoPreview =
+    document.getElementById(
+        "photoPreview"
+    );
+  let studentPhotoData = "";
+
+
+const photoPreviewContainer =
+    document.getElementById(
+        "photoPreviewContainer"
+    );
+studentPhotoInput.addEventListener(
+    "change",
+    async function () {
+
+        const file =
+            this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        /* =========================================
+           FIX: use the existing central compressor
+           (student-photo.js) so the photo actually
+           sent to the backend stays well under the
+           server's 1.5MB upload limit. Previously
+           this handler read the RAW file via
+           FileReader, so normal phone-camera photos
+           (2-10MB) exceeded the backend limit and the
+           whole admission submission was rejected.
+        ========================================= */
+
+        try {
+
+            const newPhotoData = await compressStudentPhoto(file);
+            studentPhotoData = newPhotoData;
+
+            photoPreview.src = studentPhotoData;
+
+            photoPreviewContainer.style.display =
+                "block";
+
+        } catch (error) {
+
+            console.error(
+                "PHOTO COMPRESSION ERROR:",
+                error
+            );
+
+            alert(
+                "❌ " + error.message
+            );
+
+            studentPhotoData = "";
+
+        }
+
+    }
+);
+  /* ==================================================
+   NOTE: Aadhaar preview + change-handling is done by
+   initStudentAadhaarUpload() in
+   assets/js/student-aadhaar-upload.js (auto-runs on
+   DOMContentLoaded). A second, duplicate inline
+   listener on the same #aadhaarCard input used to
+   live here (preview-only, did not set
+   window.studentAadhaarData) — removed as it was
+   redundant dead-weight firing alongside the real
+   handler. No behaviour change: preview + data
+   capture both still happen via the JS module.
+================================================== */
+
+/* ==================================================
+   SUBMISSION LOCK
+================================================== */
+
+let admissionSubmitting = false;
+const admissionFormStartedAt = Date.now();
+
+const submitAdmissionBtn =
+    document.getElementById("submitAdmissionBtn");
+
+
+/* ==================================================
+   SUBMIT ADMISSION
+================================================== */
+
+admissionForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        /* =========================================
+           HARD SINGLE-TAP LOCK
+        ========================================= */
+
+        if (admissionSubmitting) {
+
+            console.warn(
+                "ADMISSION SUBMISSION ALREADY IN PROGRESS"
+            );
+
+            return;
+        }
+
+
+        admissionSubmitting = true;
+
+
+        /* =========================================
+           DISABLE BUTTON IMMEDIATELY
+        ========================================= */
+
+        if (submitAdmissionBtn) {
+
+            submitAdmissionBtn.disabled = true;
+
+            submitAdmissionBtn.textContent =
+                "Submitting Admission...";
+
+            submitAdmissionBtn.style.opacity =
+                "0.6";
+
+            submitAdmissionBtn.style.pointerEvents =
+                "none";
+
+        }
+
+
+        try {
+
+
+            /* =========================================
+               GET FORM DATA
+            ========================================= */
+
+
+            const studentName =
+                document
+                .getElementById(
+                    "studentName"
+                )
+                .value
+                .trim();
+
+
+            const fatherName =
+                document
+                .getElementById(
+                    "fatherName"
+                )
+                .value
+                .trim();
+
+
+            const motherName =
+                document
+                .getElementById(
+                    "motherName"
+                )
+                .value
+                .trim();
+
+
+            const dateOfBirth =
+                document
+                .getElementById(
+                    "dateOfBirth"
+                )
+                .value;
+
+
+            const course =
+                document
+                .getElementById(
+                    "course"
+                )
+                .value
+                .trim();
+
+
+            const mobile =
+                document
+                .getElementById(
+                    "mobile"
+                )
+                .value
+                .trim();
+
+
+            const email =
+                document
+                .getElementById(
+                    "email"
+                )
+                .value
+                .trim();
+
+
+            const address =
+                document
+                .getElementById(
+                    "address"
+                )
+                .value
+                .trim();
+
+
+            /* =========================================
+               PHOTO
+            ========================================= */
+
+
+            const photoFile =
+                studentPhotoInput.files[0];
+
+
+            if (!photoFile) {
+
+                alert(
+                    "❌ Please upload student photo."
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               READ PHOTO
+            ========================================= */
+
+
+            const photoData =
+    studentPhotoData;
+
+if (!photoData) {
+
+    alert(
+        "❌ Student photo could not be processed."
+    );
+
+    return;
+
+}
+/* =========================================
+   AADHAAR FILE
+========================================= */
+      const aadhaarData =
+    window.studentAadhaarData;
+
+
+if (
+    !aadhaarData ||
+    !aadhaarData.mode ||
+    !aadhaarData.frontFile
+) {
+
+    alert(
+        "❌ Please upload Aadhaar Card."
+    );
+
+    return;
+
+}
+
+
+/* =========================================
+   IMAGE = FRONT + BACK
+========================================= */
+
+if (
+    aadhaarData.mode === "image" &&
+    !aadhaarData.backFile
+) {
+
+    alert(
+        "❌ Please upload Aadhaar Back Image."
+    );
+
+    return;
+
+}
+
+    /* ==================================================
+   GOOGLE DATABASE SUBMIT
+================================================== */
+
+const apiData = {
+
+    action: "submitAdmission",
+
+    // Server-side anti-abuse metadata. The backend never trusts these as authentication.
+    website: document.getElementById("website")?.value || "",
+    formStartedAt: admissionFormStartedAt,
+
+    studentName:
+        studentName,
+
+    fatherName:
+        fatherName,
+
+    motherName:
+        motherName,
+
+    dateOfBirth:
+        dateOfBirth,
+
+    course:
+        course,
+
+    mobile:
+        mobile,
+
+    email:
+        email,
+
+    address:
+        address,
+
+    /* =========================
+       STUDENT PHOTO
+    ========================= */
+
+    photo:
+        photoData,
+
+    photoName:
+        photoFile.name,
+
+    photoType:
+        photoFile.type,
+
+    /* =========================
+       SIGNATURE
+    ========================= */
+
+    signature:
+        window.studentSignatureData || "",
+
+    signatureName:
+        "SIGNATURE",
+
+    signatureType:
+        "image/png",
+
+    /* =========================
+       MARKSHEET
+    ========================= */
+
+    marcsheet:
+        window.studentMarcsheetData || "",
+
+    marcsheetName:
+        "MARKSHEET",
+
+    marcsheetType:
+        "image/jpeg",
+
+    /* =========================
+       AADHAAR
+    ========================= */
+
+    aadhaarData: {
+
+        mode:
+            aadhaarData.mode,
+
+        frontData:
+            await fileToBase64(
+                aadhaarData.frontFile
+            ),
+
+        frontName:
+            aadhaarData.frontFile.name,
+
+        frontType:
+            aadhaarData.frontFile.type,
+
+        backData:
+            aadhaarData.backFile
+                ? await fileToBase64(
+                    aadhaarData.backFile
+                )
+                : "",
+
+        backName:
+            aadhaarData.backFile
+                ? aadhaarData.backFile.name
+                : "",
+
+        backType:
+            aadhaarData.backFile
+                ? aadhaarData.backFile.type
+                : ""
+
+    }
+
+};
+
+
+/* ==================================================
+   SEND TO GOOGLE APPS SCRIPT
+================================================== */
+
+const response =
+    await fetch(
+        SURYA_DATABASE_API,
+        {
+
+            method:
+                "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "text/plain;charset=utf-8"
+
+            },
+
+            body:
+                JSON.stringify(
+                    apiData
+                )
+
+        }
+    );
+
+
+const result =
+    await response.json();
+
+
+/* ==================================================
+   CHECK RESPONSE
+================================================== */
+
+if (
+    !result.success
+) {
+
+    throw new Error(
+        result.message ||
+        "Admission submission failed."
+    );
+
+}
+
+
+/* ==================================================
+   SAVE APPLICATION ID
+================================================== */
+
+localStorage.setItem(
+
+    "lastApplicationId",
+
+    result.applicationId
+
+);
+
+/* ==================================================
+   SAVE APPLICATION ACKNOWLEDGEMENT DATA
+================================================== */
+
+localStorage.setItem(
+    "lastAdmissionData",
+    JSON.stringify({
+
+        applicationId:
+            result.applicationId,
+
+        studentName:
+            studentName,
+
+        fatherName:
+            fatherName,
+
+        motherName:
+            motherName,
+
+        dateOfBirth:
+            dateOfBirth,
+
+        course:
+            course,
+
+        mobile:
+            mobile,
+
+        email:
+            email,
+
+        address:
+            address,
+
+        applicationDate:
+            new Date().toISOString(),
+
+        status:
+            result.status || "Pending",
+
+        photo:
+            photoData,
+
+        photoName:
+            photoFile.name,
+
+        signatureSubmitted:
+            !!window.studentSignatureData,
+
+        marksheetSubmitted:
+            !!window.studentMarcsheetData,
+
+        aadhaarSubmitted:
+            !!aadhaarData
+
+    })
+);
+
+/* ==================================================
+   SUCCESS
+================================================== */
+
+alert(
+
+    "✅ Admission submitted successfully!\n\n" +
+
+    "Application ID: " +
+
+    result.applicationId +
+
+    "\n\n" +
+
+    "Student documents saved successfully."
+
+);
+
+
+/* ==================================================
+   OPEN SUCCESS PAGE
+================================================== */
+
+window.location.href =
+    "admission-success.html";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "ADMISSION ERROR:",
+                error
+            );
+
+            alert(
+                "❌ Admission submission status could not be confirmed.\n\n" +
+                "Check the admin panel / Google Sheet before trying again."
+            );
+            admissionSubmitting = false;
+            if (submitAdmissionBtn) { submitAdmissionBtn.disabled = false; submitAdmissionBtn.textContent = "Submit Admission"; }
+
+        }
+
+    }
+);
+
+
+initStudentSignatureUpload();
+initStudentMarcsheetUpload();
+
+</script>
+
+
+    <script>
+    (async function(){
+        const select=document.getElementById("course");
+        if(!select) return;
+        try{
+            const r=await fetch(window.SURYA_DATABASE_API + "?action=publicCourses");
+            const d=await r.json();
+            if(!d.success || !Array.isArray(d.courses)) return;
+            const current=select.value;
+            select.innerHTML='<option value="">Select Course</option>';
+            d.courses.forEach(function(c){
+                const id=String(c["Course ID"]||"").trim();
+                const name=String(c["Course Name"]||id).trim();
+                const option=document.createElement("option");
+                option.value=id;
+                option.textContent=name;
+                select.appendChild(option);
+            });
+            if(current) select.value=current;
+        }catch(e){ console.warn("PUBLIC COURSE LOAD ERROR",e); }
+    })();
+    </script>
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+
+</html>

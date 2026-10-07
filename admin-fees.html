@@ -1,0 +1,55 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-fees.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Purpose : Fee Management & Collection
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fee Management | Surya Computer Of Education Center</title>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+<style>
+.fee-wrap{max-width:1100px;margin:25px auto;padding:15px}.fee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}.fee-card,.fee-panel{background:var(--cimp-panel,#fff);border-radius:14px;padding:18px;box-shadow:0 5px 18px rgba(0,0,0,.08);margin-bottom:18px}.fee-card strong{display:block;font-size:23px;margin-top:6px}.fee-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end}.fee-form input,.fee-form select{width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd5e1;border-radius:8px}.fee-form button{padding:11px 15px;border:0;border-radius:8px;cursor:pointer}.course-row{padding:10px 0;border-bottom:1px solid #e5e7eb}.fee-msg{font-weight:700;margin-top:10px}
+</style>
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body>
+<div class="top-bar">📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a></div>
+<header class="header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA COMPUTER OF EDUCATION CENTER</h1><p>Fee Management</p></div></header>
+<nav class="navbar"><a href="admin.html">Admin Dashboard</a><a href="admin-admissions.html">Admissions</a><a href="admin-students.html">Students</a><a href="admin-courses.html">Courses</a></nav>
+<main class="fee-wrap">
+<section><div class="admin-header"><h2>💰 Fee Collection Dashboard</h2><p>Verified collections, pending dues और course-wise fee status.</p></div><div class="fee-grid" id="summary"></div></section>
+<section class="fee-panel"><h3>📚 Course-wise Collection</h3><div id="courses">Loading...</div></section>
+<section class="fee-panel"><h3>📲 Direct UPI — Pending Verification</h3><p>Sir के UPI transaction/statement में payment देखकर ही यहाँ <b>VERIFY</b> करें। Student के browser को payment success मानकर fee credit नहीं किया जाता।</p><div id="upiPending">Loading pending UPI payments...</div></section>
+<section class="fee-panel"><h3>➕ Record Verified Student Payment</h3><p>यहाँ केवल वास्तव में प्राप्त और Admin द्वारा verify किया गया payment दर्ज करें।</p><div class="fee-form"><label>Student<select id="studentId"><option value="">Loading students...</option></select></label><label>Amount<input id="amount" type="number" min="1" step="1" placeholder="Amount"></label><label>Mode<select id="mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Net Banking</option></select></label><label>Notes<input id="notes" type="text" placeholder="Optional note"></label><button type="button" onclick="recordPayment()">💾 Save Verified Payment</button></div><div id="msg" class="fee-msg"></div></section>
+</main>
+<footer class="footer"><div class="footer-content"><h2>SURYA COMPUTER OF EDUCATION CENTER</h2><p>Kamalpur, Chandauli, Uttar Pradesh</p><p>📞 <a href="tel:+917084275870">+91 7084275870</a></p><p>© 2026 SURYA COMPUTER OF EDUCATION CENTER</p></div></footer>
+<script>
+const API=window.SURYA_DATABASE_API;
+const token=sessionStorage.getItem("SURYA_ADMIN_TOKEN")||"";
+async function api(body){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token})});const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;}
+const money=v=>"₹"+Number(v||0).toLocaleString("en-IN");
+async function loadPendingUpi(){try{const d=await api({action:'upiPendingPayments'});const box=document.getElementById('upiPending');const list=d.requests||[];box.innerHTML=list.length?list.map(r=>`<div style="padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0"><b>${r.requestId}</b><br><b>Account:</b> ${r.accountType||'COURSE'} | <b>ID:</b> ${r.accountId||r.studentId||r.applicationId||'—'}<br>Student: ${r.studentId||'Admission applicant'} | Application: ${r.applicationId||'—'} | Amount: ${money(r.amount)}<br>Reference: <b>${r.reference}</b> | Requested: ${formatSuryaDateTime(r.requestedAt)}<br><button type="button" onclick="verifyUpi('${r.requestId}',true)">✅ VERIFY</button> <button type="button" onclick="verifyUpi('${r.requestId}',false)">❌ Reject</button></div>`).join(''):'No pending UPI payments.';}catch(e){document.getElementById('upiPending').textContent='❌ '+e.message;}}
+async function verifyUpi(requestId,approve){const notes=approve?'Verified from institute UPI transaction record.':prompt('Reason for rejection:','Payment not verified.');if(!approve&&notes===null)return;if(!confirm(approve?'Confirm: Sir के UPI transaction में यह payment मिला है?':'Reject this payment request?'))return;try{const d=await api({action:'verifyUpiPayment',requestId,approve,notes:notes||''});alert(d.message||(d.verified?'Payment verified. Receipt: '+d.receiptNumber:'Done'));await load();await loadPendingUpi();}catch(e){alert('❌ '+e.message);}}
+async function load(){if(!token){location.href="admin-login.html";return;}try{const [sum,students]=await Promise.all([api({action:"feeAdminSummary"}),api({action:"students"})]);const s=sum.summary||{};document.getElementById("summary").innerHTML=[['Students',s.students],['Expected',money(s.expected)],['Collected',money(s.collected)],['Pending',money(s.pending)],['Cash',money(s.cash)],['Online',money(s.online)]].map(x=>`<div class="fee-card"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("");document.getElementById("courses").innerHTML=(sum.courses||[]).map(c=>`<div class="course-row"><b>${c.course}</b> — ${c.students} students | Expected ${money(c.expected)} | Collected ${money(c.collected)} | Pending ${money(c.pending)} | Cash ${money(c.cash)} | Online ${money(c.online)}</div>`).join("")||"No fee accounts yet.";const sel=document.getElementById("studentId");sel.innerHTML='<option value="">Select Student</option>'+(students.students||[]).map(st=>`<option value="${String(st["Student ID"]||"").replace(/"/g,'&quot;')}">${String(st["Student ID"]||"")} — ${String(st["Student Name"]||"")}</option>`).join("");}catch(e){document.getElementById("msg").textContent="❌ "+e.message;}}
+async function recordPayment(){const studentId=document.getElementById("studentId").value,amount=Number(document.getElementById("amount").value),mode=document.getElementById("mode").value,notes=document.getElementById("notes").value;if(!studentId||amount<=0){document.getElementById("msg").textContent="⚠️ Student और valid amount required.";return;}if(!confirm(`Confirm verified ${mode} payment of ₹${amount.toLocaleString("en-IN")} received from ${studentId}?`))return;try{const d=await api({action:"recordStudentPayment",studentId,amount,mode,notes,idempotencyKey:`ADMIN-${studentId}-${Date.now()}`});document.getElementById("msg").textContent=`✅ Payment saved. Receipt: ${d.receiptNumber||"—"}`;document.getElementById("amount").value="";document.getElementById("notes").value="";await load();}catch(e){document.getElementById("msg").textContent="❌ "+e.message;}}
+loadPendingUpi();
+load();
+if(location.hash==="#upiPending")setTimeout(()=>document.getElementById("upiPending")?.scrollIntoView({behavior:"smooth",block:"center"}),400);
+</script>
+<script src="assets/js/project-ui.js"></script>
+</body></html>

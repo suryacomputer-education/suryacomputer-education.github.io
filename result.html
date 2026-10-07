@@ -1,0 +1,264 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : result.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Student Result | Surya Computer Of Education Center</title>
+    <meta name="description" content="Check student examination results from SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli.">
+    <meta name="keywords" content="Surya Computer result, computer institute result Kamalpur, Chandauli result">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://suryacomputer-education.github.io/result.html">
+    <meta property="og:title" content="Student Result | Surya Computer Of Education Center">
+    <meta property="og:description" content="Check student examination results from SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suryacomputer-education.github.io/result.html">
+    <meta property="og:image" content="assets/images/favicon-512.png">
+
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a> |
+    ▶️ YouTube: <a href="https://www.youtube.com/@sunilkumar-1cmd" target="_blank" rel="noopener"> @sunilkumar-1cmd</a>
+</div>
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+            <a href="digital-library.html">Digital Library</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+<!--==================================================
+RESULT SECTION
+==================================================-->
+
+<section class="result-section">
+
+    <h2>Student Result</h2>
+
+    <p>Enter your Roll Number to check your result.</p>
+
+    <form class="result-form">
+
+        <input
+            type="text"
+            id="rollNumber"
+            placeholder="Enter Roll Number"
+            required
+        >
+
+        <button type="submit">
+            🔍 Check Result
+        </button>
+
+    </form>
+
+    <div id="resultBox"></div>
+
+</section>
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer>
+
+    <p>
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+    </p>
+
+</footer>
+<script>
+"use strict";
+
+const SURYA_RESULT_API =
+    window.SURYA_DATABASE_API;
+
+const resultForm = document.querySelector(".result-form");
+const resultBox = document.getElementById("resultBox");
+
+function esc(v){
+    return String(v ?? "").replace(/[&<>"']/g,m=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+}
+
+async function getPublicResults(studentId){
+    const r = await fetch(
+        SURYA_RESULT_API +
+        "?action=publicResults&id=" +
+        encodeURIComponent(studentId)
+    );
+    const d = await r.json();
+    if(!d.success) throw new Error(d.message || "Result service failed.");
+    return d.results || [];
+}
+
+async function getPublicSubjects(resultId){
+    const r = await fetch(
+        SURYA_RESULT_API +
+        "?action=publicResultSubjects&resultId=" +
+        encodeURIComponent(resultId)
+    );
+    const d = await r.json();
+    if(!d.success) return [];
+    return d.subjects || [];
+}
+
+resultForm.addEventListener("submit", async function(event){
+    event.preventDefault();
+
+    const studentId =
+        document.getElementById("rollNumber").value.trim().toUpperCase();
+
+    if(!studentId){
+        resultBox.innerHTML =
+            `<div class="result-card"><h3>Please enter Student ID.</h3></div>`;
+        return;
+    }
+
+    resultBox.innerHTML =
+        `<div class="result-card"><h3>⏳ Loading Result...</h3></div>`;
+
+    try{
+        const publishedResults = await getPublicResults(studentId);
+
+        if(!publishedResults.length){
+            resultBox.innerHTML = `
+                <div class="result-card">
+                    <h3>Result Not Found</h3>
+                    <p>Please check your Student ID or make sure your result has been published.</p>
+                </div>`;
+            return;
+        }
+
+        let resultHTML = `
+            <div class="result-card">
+                <h2>Student Result</h2>
+                <p><strong>Student Name:</strong> ${esc(publishedResults[0]["Student Name"] || publishedResults[0].studentName)}</p>
+                <p><strong>Student ID:</strong> ${esc(publishedResults[0]["Student ID"] || publishedResults[0].studentId)}</p>
+                <p><strong>Course:</strong> ${esc(publishedResults[0].Course || publishedResults[0].course)}</p>
+            </div>`;
+
+        for(const result of publishedResults){
+            const resultId = result["Result ID"] || result.resultId || "";
+            const subjects = resultId ? await getPublicSubjects(resultId) : [];
+
+            resultHTML += `
+                <div class="result-card">
+                    <h3>📚 ${esc(result.Exam || result.exam)}</h3>
+                    <p><strong>Total Marks:</strong> ${esc(result["Total Marks"] ?? result.totalMarks)}</p>
+                    <p><strong>Obtained Marks:</strong> ${esc(result["Obtained Marks"] ?? result.obtainedMarks)}</p>
+                    <p><strong>Percentage:</strong> ${esc(result.Percentage ?? result.percentage)}%</p>
+                    <p><strong>Grade:</strong> ${esc(result.Grade || result.grade)}</p>
+                    <p><strong>Result:</strong> ${esc(result.Result || result.result)}</p>
+                    <p><strong>Status:</strong> ${esc(result.Status || result.status)}</p>
+                    ${subjects.length ? `
+                        <h4>📖 Subject-wise Marks</h4>
+                        <div style="overflow-x:auto">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead><tr>
+                                <th style="padding:8px;border:1px solid #ccc">Subject</th>
+                                <th style="padding:8px;border:1px solid #ccc">Theory</th>
+                                <th style="padding:8px;border:1px solid #ccc">Practical</th>
+                                <th style="padding:8px;border:1px solid #ccc">Total</th>
+                                <th style="padding:8px;border:1px solid #ccc">%</th>
+                                <th style="padding:8px;border:1px solid #ccc">Grade</th>
+                                <th style="padding:8px;border:1px solid #ccc">Result</th>
+                            </tr></thead>
+                            <tbody>
+                            ${subjects.map(sub=>`
+                                <tr>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Subject Name"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Theory Marks"])}/${esc(sub["Max Theory Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Practical Marks"])}/${esc(sub["Max Practical Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Obtained Marks"])}/${esc(sub["Total Max Marks"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Percentage"])}%</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Grade"])}</td>
+                                    <td style="padding:8px;border:1px solid #ccc">${esc(sub["Result"])}</td>
+                                </tr>`).join("")}
+                            </tbody>
+                        </table>
+                        </div>` : ""}
+                </div>`;
+        }
+
+        resultBox.innerHTML = resultHTML;
+    }catch(error){
+        console.error("PUBLIC RESULT ERROR:", error);
+        resultBox.innerHTML =
+            `<div class="result-card"><h3>❌ ${esc(error.message)}</h3></div>`;
+    }
+});
+</script>
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Face Attendance | SURYA</title>
+<script src="assets/js/backend-config.js"></script><script src="assets/js/admin-guard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+<style>
+:root{font-family:Arial,sans-serif;color:#172033;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:1050px;margin:auto;padding:16px}
+header,.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 6px 24px #00000012}
+h1{margin:0 0 5px}h2{margin:0 0 12px}p{line-height:1.5}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+video{width:100%;max-height:420px;background:#10151c;border-radius:14px;object-fit:cover;transform:scaleX(-1)}
+.controls{display:flex;gap:8px;flex-wrap:wrap}button,select,input{padding:11px;border-radius:10px;border:1px solid #ccd5e1;font-size:15px}button{cursor:pointer;background:#173f7a;color:#fff;border:0;font-weight:700}button.secondary{background:#eef3fa;color:#173f7a}button.danger{background:#a52828}
+.status{padding:12px;border-radius:10px;background:#eef3fa;margin:10px 0;font-weight:700}
+.good{background:#eaf8ee;color:#176b35}.bad{background:#fff0f0;color:#9d2525}.warn{background:#fff8df;color:#795b00}
+table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid #e4e9ef;text-align:left;font-size:13px}
+.small{font-size:12px;color:#657084}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef3fa}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>📷 SURYA Automatic Face Attendance</h1>
+<p>Camera → live-face check → face match → existing Attendance system. Continuous video is not uploaded or stored.</p>
+<div id="modelStatus" class="status warn">⏳ Face AI models loading...</div>
+</header>
+
+<div class="grid">
+<section class="card">
+<h2>1. Camera</h2>
+<video id="video" autoplay muted playsinline></video>
+<div class="controls" style="margin-top:10px">
+<button onclick="startCamera()">📷 Start Camera</button>
+<button class="secondary" onclick="stopCamera()">⏹ Stop</button>
+</div>
+<div id="liveStatus" class="status">Camera बंद है.</div>
+</section>
+
+<section class="card">
+<h2>2. Mode</h2>
+<label>Course</label>
+<select id="course" style="width:100%;margin:6px 0 12px"></select>
+<div class="controls">
+<button onclick="setMode('attendance')">✅ Take Face Attendance</button>
+<button class="secondary" onclick="setMode('register')">👤 Register / Re-register Face</button>
+</div>
+<p class="small">Registration में 3 live samples लिए जाएंगे. Attendance में randomized blink/head-movement challenge होगा.</p>
+</section>
+</div>
+
+<section class="card" id="actionCard">
+<h2>Ready</h2>
+<div id="actionStatus" class="status">Course चुनें और mode शुरू करें.</div>
+<div id="studentInfo"></div>
+</section>
+
+<section class="card">
+<h2>Registered Face Profiles</h2>
+<div class="controls">
+<button class="secondary" onclick="loadProfiles()">🔄 Refresh</button>
+</div>
+<div id="profileList" style="overflow:auto;margin-top:10px">Loading...</div>
+</section>
+
+<section class="card">
+<h2>Today's Attendance</h2>
+<div class="controls">
+<button class="secondary" onclick="loadToday()">🔄 Refresh</button>
+</div>
+<div id="todayList" style="overflow:auto;margin-top:10px">Loading...</div>
+</section>
+</div>
+
+<script>
+"use strict";
+const API=window.SURYA_DATABASE_API;
+const TOKEN=sessionStorage.getItem("SURYA_ADMIN_TOKEN")||"";
+const MODEL_URL="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model";
+let stream=null, mode="", modelsReady=false, profiles=[], busy=false, challenge=null;
+
+function indiaDate(){return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
+function faceDistance(a,b){if(!a||!b||a.length!==b.length)return Infinity;let s=0;for(let i=0;i<a.length;i++){const d=Number(a[i])-Number(b[i]);s+=d*d;}return Math.sqrt(s);}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
+function status(el,msg,cls=""){el.className="status "+cls;el.textContent=msg;}
+async function api(body){
+ if(!TOKEN) throw new Error("Admin login/session नहीं मिला. पहले Admin Login करें.");
+ const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:TOKEN})});
+ const d=await r.json(); if(!d.success) throw new Error(d.message||"Request failed."); return d;
+}
+async function loadModels(){
+ try{
+  await Promise.all([
+   faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+   faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+   faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+  ]);
+  modelsReady=true; status(document.getElementById("modelStatus"),"✅ Face AI models ready.","good");
+ }catch(e){status(document.getElementById("modelStatus"),"❌ Face AI model load failed. Internet/CDN check करें.","bad");}
+}
+async function loadCourses(){
+ try{
+  const d=await api({action:"courses"}), a=d.courses||[], s=document.getElementById("course");
+  s.innerHTML='<option value="">-- Course चुनें --</option>';
+  a.forEach(x=>{const id=String(x["Course ID"]||x.courseId||"").trim(),n=String(x["Course Name"]||x.courseName||id).trim();if(id)s.insertAdjacentHTML("beforeend",`<option value="${esc(id)}">${esc(id)} — ${esc(n)}</option>`)});
+ }catch(e){status(document.getElementById("actionStatus"),"❌ Courses load नहीं हुए: "+e.message,"bad");}
+}
+async function loadProfiles(){
+ try{
+  const d=await api({action:"faceProfiles"});
+  profiles=Array.isArray(d.profiles)?d.profiles.map(p=>({
+   ...p,
+   descriptor:typeof p.descriptor==='string'?JSON.parse(p.descriptor):Array.isArray(p.descriptor)?p.descriptor:[]
+  })):[];
+  renderProfiles();
+ }catch(e){
+  profiles=[];
+  document.getElementById("profileList").textContent="❌ "+e.message;
+ }
+}
+function renderProfiles(){
+ if(!profiles.length){document.getElementById("profileList").innerHTML="<p>No face profiles registered yet.</p>";return;}
+ document.getElementById("profileList").innerHTML="<table><thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Samples</th><th>Source</th><th>Action</th></tr></thead><tbody>"+
+ profiles.map(p=>`<tr><td>${esc(p.studentId)}</td><td>${esc(p.studentName)}</td><td>${esc(p.course)}</td><td>${esc(p.sampleCount)}</td><td>${esc(p.referenceSource)}</td><td><button class="danger" onclick="disableProfile('${esc(p.studentId)}')">Disable</button></td></tr>`).join("")+
+ "</tbody></table>";
+}
+async function disableProfile(id){
+ if(!confirm("Face profile disable करें?"))return;
+ try{await api({action:"deleteFaceProfile",studentId:id});await loadProfiles();status(document.getElementById("actionStatus"),"✅ Face profile disabled.","good");}
+ catch(e){status(document.getElementById("actionStatus"),"❌ "+e.message,"bad");}
+}
+async function loadToday(){
+ const course=document.getElementById("course").value;
+ if(!course){document.getElementById("todayList").innerHTML="<p>Select a course first.</p>";return;}
+ try{
+  const d=await api({action:"attendanceStudents",course,date:indiaDate()});
+  const a=Array.isArray(d.students)?d.students:[];
+  document.getElementById("todayList").innerHTML=a.length?
+   "<table><thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Status</th></tr></thead><tbody>"+
+   a.map(x=>{const st=x.status||"NOT MARKED";return `<tr><td>${esc(x.studentId)}</td><td>${esc(x.studentName)}</td><td>${esc(x.course)}</td><td><span class="${st==='PRESENT'?'pill':'warn'} pill">${esc(st)}</span></td></tr>`}).join("")+
+   "</tbody></table>":"<p>No students found for this course.</p>";
+ }catch(e){document.getElementById("todayList").innerHTML="❌ <small>"+esc(e.message)+"</small>";}
+}
+async function startCamera(){
+ if(!modelsReady){status(document.getElementById("liveStatus"),"⏳ Face AI अभी ready नहीं है.","warn");return;}
+ try{
+  stopCamera();
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});
+  document.getElementById("video").srcObject=stream;
+  status(document.getElementById("liveStatus"),"✅ Camera चालू है.","good");
+ }catch(e){status(document.getElementById("liveStatus"),"❌ Camera permission/error: "+e.message,"bad");}
+}
+function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}document.getElementById("video").srcObject=null;}
+function setMode(m){
+ mode=m;
+ if(m==="register") beginRegister(); else if(m==="attendance") beginAttendance();
+}
+async function detect(){
+ const v=document.getElementById("video");
+ if(!stream||v.readyState<2) throw new Error("Camera start करें.");
+ const ds=await faceapi.detectAllFaces(v,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.5})).withFaceLandmarks().withFaceDescriptors();
+ if(ds.length===0) throw new Error("Face नहीं मिला. Camera की तरफ सीधे देखें.");
+ if(ds.length!==1) throw new Error("एक समय में केवल एक व्यक्ति camera के सामने रहे.");
+ return ds[0];
+}
+function eyeEAR(eye){
+ const p=eye.map(x=>[x.x,x.y]); const dist=(a,b)=>Math.hypot(p[a][0]-p[b][0],p[a][1]-p[b][1]);
+ return (dist(1,5)+dist(2,4))/(2*dist(0,3)||1);
+}
+function headRatio(landmarks){
+ const pts=landmarks.positions;
+ const left=pts[36], right=pts[45], nose=pts[30];
+ const mid=(left.x+right.x)/2, span=Math.max(1,right.x-left.x);
+ return (nose.x-mid)/span;
+}
+async function waitLiveChallenge(){
+ const v=document.getElementById("video");
+ const choices=["BLINK","TURN_LEFT","TURN_RIGHT","BLINK_TURN_LEFT","BLINK_TURN_RIGHT"];
+ challenge=choices[Math.floor(Math.random()*choices.length)];
+ const textMap={BLINK:"👁️ Blink करें",TURN_LEFT:"⬅️ सिर थोड़ा LEFT घुमाएँ",TURN_RIGHT:"➡️ सिर थोड़ा RIGHT घुमाएँ",BLINK_TURN_LEFT:"👁️ Blink + ⬅️ LEFT",BLINK_TURN_RIGHT:"👁️ Blink + ➡️ RIGHT"};
+ status(document.getElementById("liveStatus"),"LIVE CHALLENGE: "+textMap[challenge],"warn");
+ let blink=false, turn=false, start=Date.now(), prevOpen=true;
+ while(Date.now()-start<12000){
+  const d=await faceapi.detectSingleFace(v,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.5})).withFaceLandmarks();
+  if(d){
+   const avg=(eyeEAR(d.landmarks.getLeftEye())+eyeEAR(d.landmarks.getRightEye()))/2;
+   const open=avg>.25;
+   if(prevOpen && avg<.19) blink=true;
+   prevOpen=open;
+   const hr=headRatio(d.landmarks);
+   if((challenge.includes("LEFT")&&hr<-.20)||(challenge.includes("RIGHT")&&hr>.20)) turn=true;
+   if((challenge==="BLINK"&&blink)||(challenge==="TURN_LEFT"&&turn)||(challenge==="TURN_RIGHT"&&turn)||((challenge.includes("BLINK")&&blink)&&(challenge.includes("TURN")&&turn))) return Array.from(d.descriptor);
+  }
+  await new Promise(r=>setTimeout(r,120));
+ }
+ return false;
+}
+function descriptorArray(d){return Array.from(d.descriptor);}
+async function beginRegister(){
+ const card=document.getElementById("actionCard"), course=document.getElementById("course").value;
+ card.querySelector("h2").textContent="👤 Face Registration";
+ if(!course){status(document.getElementById("actionStatus"),"पहले Course चुनें.","warn");return;}
+ if(!stream) await startCamera();
+ if(!stream)return;
+ const sid=prompt("Student ID डालें (जैसे SCADCA0001):"); if(!sid)return;
+ const samples=[];
+ try{
+  status(document.getElementById("actionStatus"),"⏳ Sample 1: camera में सीधे देखें...","warn");
+  await new Promise(r=>setTimeout(r,700)); samples.push(descriptorArray(await detect()));
+  status(document.getElementById("actionStatus"),"⏳ Sample 2: थोड़ा LEFT देखें...","warn"); await new Promise(r=>setTimeout(r,900)); samples.push(descriptorArray(await detect()));
+  status(document.getElementById("actionStatus"),"⏳ Sample 3: थोड़ा RIGHT देखें...","warn"); await new Promise(r=>setTimeout(r,900)); samples.push(descriptorArray(await detect()));
+  if(samples.some((s,i)=>samples.some((t,j)=>i<j && faceDistance(s,t)>.75))) throw new Error("Face samples आपस में consistent नहीं हैं. उसी student को camera में रखें और फिर register करें.");
+  const d=await api({action:"saveFaceProfile",studentId:sid,course,samples,referenceSource:"CAMERA_3_SAMPLES"});
+  status(document.getElementById("actionStatus"),"✅ "+d.message+" — "+d.studentId,"good");
+  await loadProfiles();
+ }catch(e){status(document.getElementById("actionStatus"),"❌ Registration failed: "+e.message,"bad");}
+}
+async function beginAttendance(){
+ const course=document.getElementById("course").value;
+ if(!course){status(document.getElementById("actionStatus"),"पहले Course चुनें.","warn");return;}
+ if(!stream) await startCamera(); if(!stream)return;
+ if(busy)return; busy=true;
+ try{
+  status(document.getElementById("actionStatus"),"⏳ LIVE verification चल रहा है...","warn");
+  const liveDescriptor=await waitLiveChallenge();
+  if(!liveDescriptor) throw new Error("Liveness challenge failed/timeout. फिर से try करें.");
+  const d=await detect(), q=Array.from(d.descriptor);
+  if(faceDistance(liveDescriptor,q)>.55) throw new Error("Liveness के बाद face बदल गया. फिर से try करें.");
+  if(!profiles||!profiles.length) await loadProfiles();
+  if(!Array.isArray(profiles)) profiles=[];
+  const courseProfiles=(profiles||[]).filter(p=>p&&String(p.course).trim()===course);
+  let best=null;
+  for(const p of courseProfiles){
+   if(!p.descriptor||!Array.isArray(p.descriptor)||p.descriptor.length!==q.length)continue;
+   try{
+    let sum=0;for(let i=0;i<Math.min(q.length,p.descriptor.length);i++){const x=Number(q[i]||0)-Number(p.descriptor[i]||0);sum+=x*x;}
+    const dist=Math.sqrt(sum);
+    if(!best||dist<best.dist)best={p,dist};
+   }catch(e){continue;}
+  }
+  if(!best)throw new Error("इस course के लिए face profile नहीं मिला.");
+  if(best.dist>.50)throw new Error("Face match नहीं हुआ. Best distance: "+best.dist.toFixed(3));
+  document.getElementById("studentInfo").innerHTML=`<div class="status good">Matched: <b>${esc(best.p.studentName)}</b> (${esc(best.p.studentId)}) • distance ${best.dist.toFixed(3)}</div>`;
+  const r=await api({action:"faceMarkAttendance",studentId:best.p.studentId,course,matchScore:best.dist,liveness:true});
+  status(document.getElementById("actionStatus"),"✅ "+r.message+" — "+r.studentName,"good");
+  await loadToday();
+ }catch(e){status(document.getElementById("actionStatus"),"❌ "+e.message,"bad");}
+ finally{busy=false;}
+}
+document.getElementById("course").addEventListener("change",loadToday);
+(async()=>{await loadModels();await loadCourses();await loadProfiles();await loadToday();})();
+</script>
+</body>
+</html>

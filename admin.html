@@ -1,0 +1,1603 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin.html
+Version : v1.2.0
+Author  : Devendra Kumar
+Guide   : AERON
+
+Security:
+- Admin session guard
+- Server-side logout
+- Change admin password
+- Password change revokes all sessions
+==================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Panel | Surya Computer Of Education Center
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/css/responsive.css"
+    >
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+
+<style id="admin-settings-ui">
+/* =========================================================
+   ADMIN SETTINGS UI
+   ========================================================= */
+
+.admin-top-settings{
+    position:relative;
+    width:100%;
+    max-width:1200px;
+    margin:0 auto 8px;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    padding:0 14px;
+    box-sizing:border-box;
+}
+
+.admin-settings-icon{
+    width:46px;
+    height:46px;
+    border:0;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 3px 12px rgba(0,0,0,.18);
+    font-size:24px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.admin-settings-icon:hover{
+    transform:rotate(25deg) scale(1.05);
+    box-shadow:0 5px 16px rgba(0,0,0,.24);
+}
+
+.admin-settings-panel{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:rgba(0,0,0,.45);
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:90px 16px 30px;
+    box-sizing:border-box;
+    overflow-y:auto;
+}
+
+.admin-settings-box{
+    width:100%;
+    max-width:520px;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.30);
+    overflow:hidden;
+}
+
+.admin-settings-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:20px;
+    background:#0d47a1;
+    color:#fff;
+}
+
+.admin-settings-title{
+    font-size:22px;
+    font-weight:700;
+}
+
+.admin-settings-subtitle{
+    margin-top:4px;
+    font-size:13px;
+    opacity:.9;
+}
+
+.admin-settings-close{
+    width:38px;
+    height:38px;
+    border:0;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.admin-settings-menu{
+    padding:14px;
+}
+
+.admin-settings-item{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    text-align:left;
+    padding:16px;
+    margin:0 0 10px;
+    border:1px solid #e3e7ee;
+    border-radius:12px;
+    background:#fff;
+    color:#164b83;
+    cursor:pointer;
+    transition:background .18s ease, transform .18s ease;
+}
+
+.admin-settings-item:last-child{
+    margin-bottom:0;
+}
+
+.admin-settings-item:hover{
+    background:#f4f8fd;
+    transform:translateY(-1px);
+}
+
+.admin-settings-item-icon{
+    width:42px;
+    min-width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:#eef5ff;
+    font-size:22px;
+}
+
+.admin-settings-item strong{
+    display:block;
+    font-size:16px;
+}
+
+.admin-settings-item small{
+    display:block;
+    margin-top:3px;
+    color:#666;
+    font-size:12px;
+}
+
+.admin-settings-logout{
+    color:#b3261e;
+}
+
+@media(max-width:600px){
+    .admin-top-settings{
+        padding:0 10px;
+    }
+
+    .admin-settings-icon{
+        width:44px;
+        height:44px;
+    }
+
+    .admin-settings-panel{
+        padding:75px 10px 20px;
+    }
+
+    .admin-settings-title{
+        font-size:20px;
+    }
+}
+</style>
+
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+     TOP BAR
+================================================== -->
+
+<div class="top-bar">
+
+    📞 <a href="tel:+917084275870">7084275870</a> |
+
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+
+</div>
+
+
+<!-- ==================================================
+     HEADER
+================================================== -->
+
+<header class="header">
+
+    <img
+        src="assets/images/logo.png"
+        alt="Logo"
+        class="logo"
+    >
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Admin Panel
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- ==================================================
+     NAVIGATION
+================================================== -->
+
+<nav class="navbar">
+
+    <a href="index.html">
+        Home
+    </a>
+
+    <a href="admission.html">
+        Admission
+    </a>
+
+    <a href="result.html">
+        Result
+    </a>
+
+    <a href="certificate.html">
+        Certificate
+    </a>
+
+    <a href="admin-courses.html">Courses</a>
+    <a href="admin-fees.html">Fees</a>
+    <a href="admin-membership.html">Membership</a>
+    <a href="admin-mock-tests.html">Mock Tests</a>
+    <a href="admin-question-bank.html">Question Bank</a>
+    <a href="admin-live-classes.html">Live Classes</a>
+    <a href="admin-contact-messages.html">Messages</a>
+
+    <a href="student-login.html">
+        Student Login
+    </a>
+
+</nav>
+
+
+<!-- ==================================================
+     ADMIN DASHBOARD
+================================================== -->
+
+<section class="admin-panel">
+
+
+    <div class="admin-header">
+
+        <h2>
+            ⚙ Admin Dashboard
+        </h2>
+
+        <p>
+            Institute Management Panel
+        </p>
+
+    </div>
+
+
+    
+<!-- ==================================================
+     ADMIN SETTINGS TOP BUTTON
+================================================== -->
+
+<div class="admin-top-settings">
+    <button
+        type="button"
+        class="admin-settings-icon"
+        onclick="openAdminSettings()"
+        aria-label="Admin Settings"
+        title="Admin Settings"
+    >
+        ⚙️
+    </button>
+</div>
+
+<div class="admin-grid">
+
+
+        <!-- ==================================================
+             ADMISSIONS
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                🎓
+            </div>
+
+            <h3>
+                Admissions
+            </h3>
+
+            <p>
+                Manage student admission applications.
+            </p>
+
+            <a
+                href="admin-admissions.html"
+                class="admin-btn"
+            >
+                View Admissions
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             STUDENTS
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                👨‍🎓
+            </div>
+
+            <h3>
+                Students
+            </h3>
+
+            <p>
+                Manage registered students.
+            </p>
+
+            <a
+                href="admin-students.html"
+                class="admin-btn"
+            >
+                Student Records
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             RESULTS
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                📊
+            </div>
+
+            <h3>
+                Results
+            </h3>
+
+            <p>
+                Manage examination results.
+            </p>
+
+            <a
+                href="admin-results.html"
+                class="admin-btn"
+            >
+                Manage Results
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             CERTIFICATES
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                📜
+            </div>
+
+            <h3>
+                Certificates
+            </h3>
+
+            <p>
+                Manage student certificates.
+            </p>
+
+            <a
+                href="admin-certificates.html"
+                class="admin-btn"
+            >
+                Manage Certificates
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             MOCK TESTS
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📝</div>
+            <h3>Mock Tests</h3>
+            <p>Create tests, manage questions, publish tests and review attempts.</p>
+            <a href="admin-mock-tests.html" class="admin-btn">Manage Mock Tests</a>
+        </div>
+
+        <!-- ==================================================
+             LIVE CLASSES
+             ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">🔴</div>
+            <h3>Live Classes</h3>
+            <p>Create, publish and manage live classes for students.</p>
+            <a href="admin-live-classes.html" class="admin-btn">Manage Live Classes</a>
+        </div>
+
+        <!-- ==================================================
+             STUDY MATERIALS
+             ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📚</div>
+            <h3>Study Materials</h3>
+            <p>Upload, publish and manage PDF study materials for students.</p>
+            <a href="admin-study-materials.html" class="admin-btn">Manage Study Materials</a>
+        </div>
+	<!-- ==================================================
+     RECORDED CLASSES
+================================================== -->
+<div class="admin-card">
+    <div class="admin-icon">🎥</div>
+    <h3>Recorded Classes</h3>
+    <p>Add, publish and manage recorded video classes for students.</p>
+    <a href="admin-recorded-classes.html" class="admin-btn">
+        Manage Recorded Classes
+    </a>
+</div>	
+
+        <!-- ==================================================
+             ATTENDANCE
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📅</div>
+            <h3>Attendance</h3>
+            <p>Course-wise daily attendance, holidays and attendance history.</p>
+            <a href="admin-face-attendance.html" class="admin-btn">📷 Face</a>
+            <a href="admin-attendance.html" class="admin-btn">Attendance</a>
+            
+        </div>
+
+        <!-- ==================================================
+             NOTICES
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                📢
+            </div>
+
+            <h3>
+                Notices
+            </h3>
+
+            <p>
+                Manage institute notices.
+            </p>
+
+            <a
+                href="admin-notices.html"
+                class="admin-btn"
+            >
+                Manage Notices
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             DIGITAL LIBRARY
+        ================================================== -->
+        <div class="admin-card">
+            <div class="admin-icon">📚</div>
+            <h3>Digital Library</h3>
+            <p>Library admissions और library students manage करें.</p>
+            <a href="admin-library.html" class="admin-btn">Library &</a>
+            <a href="admin-library.html?membership=1#membership" class="admin-btn">💳 Membership</a>
+        </div>
+
+        <!-- ==================================================
+             COURSES
+        ================================================== -->
+
+        <div class="admin-card">
+
+            <div class="admin-icon">
+                📚
+            </div>
+
+            <h3>
+                Courses
+            </h3>
+
+            <p>
+                Manage available courses.
+            </p>
+
+            <a
+                href="admin-courses.html"
+                class="admin-btn"
+            >
+                Manage Courses
+            </a>
+
+        </div>
+
+
+        <!-- ==================================================
+             PUBLIC GALLERY / MEDIA
+        ================================================== -->
+
+        <div class="admin-card">
+            <div class="admin-icon">🖼️</div>
+            <h3>Public Gallery</h3>
+            <p>Public website की photos upload, publish और delete करें.</p>
+            <a href="admin-media.html" class="admin-btn">Manage Photos</a>
+        </div>
+<!-- ==================================================
+             CONTACT MESSAGES
+        ================================================== -->
+
+        <div class="admin-card">
+            <div class="admin-icon">✉️</div>
+            <h3>Contact Messages</h3>
+            <p>Website visitors के messages पढ़ें और email reply भेजें.</p>
+            <a href="admin-contact-messages.html" class="admin-btn">Open Messages</a>
+        </div>
+
+
+
+    </div>
+
+
+<!-- ==================================================
+     ADMIN SETTINGS PANEL
+================================================== -->
+
+<div
+    id="adminSettingsPanel"
+    class="admin-settings-panel"
+    style="display:none;"
+>
+    <div class="admin-settings-box">
+
+        <div class="admin-settings-header">
+            <div>
+                <div class="admin-settings-title">⚙️ Admin Settings</div>
+                <div class="admin-settings-subtitle">
+                    Account और Admin access settings
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="admin-settings-close"
+                onclick="closeAdminSettings()"
+                aria-label="Close Settings"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div class="admin-settings-menu">
+
+            <button
+                type="button"
+                class="admin-settings-item"
+                onclick="closeAdminSettings(); openPasswordPanel();"
+            >
+                <span class="admin-settings-item-icon">🔐</span>
+                <span>
+                    <strong>Change Password</strong>
+                    <small>Admin password बदलें</small>
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="admin-settings-item"
+                onclick="openCeoPanelFromSettings();"
+            >
+                <span class="admin-settings-item-icon">👔</span>
+                <span>
+                    <strong>CEO / Financial Panel</strong>
+                    <small>Authorized CEO access — Gmail OTP required</small>
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="admin-settings-item"
+                onclick="closeAdminSettings(); openTrustedDevicesPanel();"
+            >
+                <span class="admin-settings-item-icon">📱</span>
+                <span>
+                    <strong>Trusted Devices</strong>
+                    <small>Trusted browsers और devices manage करें</small>
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="admin-settings-item admin-settings-logout"
+                onclick="closeAdminSettings(); adminLogout();"
+            >
+                <span class="admin-settings-item-icon">🚪</span>
+                <span>
+                    <strong>Logout</strong>
+                    <small>Admin dashboard से securely sign out करें</small>
+                </span>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ==================================================
+     TRUSTED ADMIN DEVICES PANEL
+================================================== -->
+
+<div
+    id="trustedDevicesPanel"
+    style="
+        display:none;
+        max-width:700px;
+        margin:30px auto;
+        padding:24px;
+        background:var(--card-bg, #ffffff);
+        border-radius:16px;
+        box-shadow:0 8px 30px rgba(0,0,0,0.12);
+    "
+>
+
+    <h2>📱 Trusted Admin Devices</h2>
+
+    <p>
+        इन browsers/devices को Admin access के लिए trusted किया गया है।
+    </p>
+
+    <div id="trustedDevicesMessage">
+        ⏳ Loading trusted devices...
+    </div>
+
+    <div id="trustedDevicesList"></div>
+
+    <button
+        type="button"
+        class="admin-btn"
+        onclick="closeTrustedDevicesPanel()"
+    >
+        Close
+    </button>
+
+</div>
+
+    <!-- ==================================================
+         CHANGE PASSWORD PANEL
+    ================================================== -->
+
+    <div
+        id="passwordPanel"
+        style="
+            display:none;
+            max-width:500px;
+            margin:30px auto;
+            padding:25px;
+            background:#ffffff;
+            border-radius:12px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.12);
+        "
+    >
+
+        <h2>
+            🔐 Change Admin Password
+        </h2>
+
+        <p>
+            Enter your current password and choose
+            a new password.
+        </p>
+
+
+        <form
+            id="changePasswordForm"
+        >
+
+
+            <input
+                type="password"
+                id="currentAdminPassword"
+                placeholder="Current Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <input
+                type="password"
+                id="newAdminPassword"
+                placeholder="New Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <input
+                type="password"
+                id="confirmAdminPassword"
+                placeholder="Confirm New Password"
+                minlength="8"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin:8px 0;
+                    box-sizing:border-box;
+                "
+            >
+
+
+            <button
+                type="submit"
+                class="admin-btn"
+            >
+                🔑 Change Password
+            </button>
+
+
+            <button
+                type="button"
+                class="admin-btn"
+                onclick="closePasswordPanel()"
+                style="margin-left:8px;"
+            >
+                Cancel
+            </button>
+
+
+        </form>
+
+
+        <div
+            id="passwordMessage"
+            style="
+                margin-top:15px;
+                font-weight:bold;
+            "
+        ></div>
+
+
+    </div>
+
+
+</section>
+
+
+<!-- ==================================================
+     FOOTER
+================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">+91 7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+/* ==================================================
+   GOOGLE APPS SCRIPT API
+================================================== */
+
+const SURYA_DATABASE_API =
+    window.SURYA_DATABASE_API;
+
+
+/* ==================================================
+   ADMIN SESSION
+================================================== */
+
+const SURYA_ADMIN_TOKEN =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_TOKEN"
+    );
+
+
+const SURYA_ADMIN_AUTH =
+    sessionStorage.getItem(
+        "SURYA_ADMIN_AUTH"
+    );
+
+
+/* ==================================================
+   SESSION GUARD
+================================================== */
+
+if (
+    SURYA_ADMIN_AUTH !== "true" ||
+    !SURYA_ADMIN_TOKEN
+) {
+
+    window.location.replace(
+        "admin-login.html"
+    );
+
+}
+
+
+/* ==================================================
+   OPEN PASSWORD PANEL
+================================================== */
+
+function openPasswordPanel() {
+
+    const panel =
+        document.getElementById(
+            "passwordPanel"
+        );
+
+    panel.style.display =
+        "block";
+
+    panel.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+/* ==================================================
+   CLOSE PASSWORD PANEL
+================================================== */
+
+function closePasswordPanel() {
+
+    document.getElementById(
+        "passwordPanel"
+    ).style.display =
+        "none";
+
+    document.getElementById(
+        "changePasswordForm"
+    ).reset();
+
+    document.getElementById(
+        "passwordMessage"
+    ).innerHTML =
+        "";
+
+}
+
+
+/* ==================================================
+   CHANGE PASSWORD
+================================================== */
+
+document
+    .getElementById(
+        "changePasswordForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const currentPassword =
+                document
+                    .getElementById(
+                        "currentAdminPassword"
+                    )
+                    .value;
+
+
+            const newPassword =
+                document
+                    .getElementById(
+                        "newAdminPassword"
+                    )
+                    .value;
+
+
+            const confirmPassword =
+                document
+                    .getElementById(
+                        "confirmAdminPassword"
+                    )
+                    .value;
+
+
+            const message =
+                document.getElementById(
+                    "passwordMessage"
+                );
+
+
+            /* =====================================
+               CONFIRM PASSWORD
+            ===================================== */
+
+            if (
+                newPassword !==
+                confirmPassword
+            ) {
+
+                message.innerHTML =
+                    "❌ New passwords do not match.";
+
+                return;
+
+            }
+
+
+            /* =====================================
+               PASSWORD LENGTH
+            ===================================== */
+
+            if (
+                newPassword.length < 8
+            ) {
+
+                message.innerHTML =
+                    "❌ Password must contain at least 8 characters.";
+
+                return;
+
+            }
+
+
+            message.innerHTML =
+                "⏳ Changing password...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        SURYA_DATABASE_API,
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "text/plain;charset=utf-8"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    action:
+                                        "changeAdminPassword",
+
+                                    token:
+                                        SURYA_ADMIN_TOKEN,
+
+                                    currentPassword:
+                                        currentPassword,
+
+                                    newPassword:
+                                        newPassword
+
+                                })
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (
+                    result.success
+                ) {
+
+                    message.innerHTML =
+                        "✅ Password changed successfully.";
+
+                    /*
+                       Backend has already revoked
+                       all admin sessions.
+                    */
+
+                    setTimeout(
+                        function() {
+
+                            sessionStorage.removeItem(
+                                "SURYA_ADMIN_TOKEN"
+                            );
+
+                            sessionStorage.removeItem(
+                                "SURYA_ADMIN_AUTH"
+                            );
+
+                            window.location.replace(
+                                "admin-login.html"
+                            );
+
+                        },
+                        1500
+                    );
+
+                }
+
+                else {
+
+                    message.innerHTML =
+                        "❌ " +
+                        (
+                            result.message ||
+                            "Password change failed."
+                        );
+
+                }
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "PASSWORD CHANGE ERROR:",
+                    error
+                );
+
+                message.innerHTML =
+                    "❌ Server connection failed.";
+
+            }
+
+        }
+    );
+
+
+
+
+function openCeoPanelFromSettings(){
+    closeAdminSettings();
+    window.location.href="admin-ceo.html";
+}
+
+/* ==================================================
+   SERVER-SIDE LOGOUT
+================================================== */
+
+async function adminLogout() {
+
+    const token =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    try {
+
+        if (token) {
+
+            /* Send security alert before the session token is revoked. */
+            let clientInfo = {
+                deviceId: localStorage.getItem("SURYA_ADMIN_DEVICE_ID") || "unknown",
+                browser: navigator.userAgent || "Unknown",
+                platform: navigator.platform || "Unknown",
+                userAgent: navigator.userAgent || "Unknown",
+                language: navigator.language || "Unknown",
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
+                screen: (screen.width || 0) + "x" + (screen.height || 0),
+                latitude: null,
+                longitude: null
+            };
+
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action: "recordAdminSecurityEvent",
+                        token: token,
+                        eventType: "LOGOUT",
+                        clientInfo: clientInfo
+                    })
+                }
+            );
+
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({
+                        action: "adminLogout",
+                        token: token
+                    })
+                }
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LOGOUT ERROR:",
+            error
+        );
+
+    }
+
+
+    sessionStorage.removeItem(
+        "SURYA_ADMIN_TOKEN"
+    );
+
+    sessionStorage.removeItem(
+        "SURYA_ADMIN_AUTH"
+    );
+
+
+    window.location.replace(
+        "admin-login.html"
+    );
+
+}
+
+/* ==================================================
+   TRUSTED ADMIN DEVICES
+================================================== */
+
+function openTrustedDevicesPanel() {
+
+    const panel =
+        document.getElementById(
+            "trustedDevicesPanel"
+        );
+
+    if (!panel) return;
+
+    panel.style.display = "block";
+
+    panel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    loadTrustedAdminDevices();
+}
+
+
+/* ==================================================
+   CLOSE TRUSTED DEVICES PANEL
+================================================== */
+
+function closeTrustedDevicesPanel() {
+
+    const panel =
+        document.getElementById(
+            "trustedDevicesPanel"
+        );
+
+    if (!panel) return;
+
+    panel.style.display = "none";
+}
+
+
+/* ==================================================
+   LOAD TRUSTED DEVICES
+================================================== */
+
+function formatTrustedDeviceDate(value) {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+
+    return new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+    }).format(date);
+}
+
+async function loadTrustedAdminDevices() {
+
+    const message =
+        document.getElementById(
+            "trustedDevicesMessage"
+        );
+
+    const list =
+        document.getElementById(
+            "trustedDevicesList"
+        );
+
+    if (!message || !list) return;
+
+    message.innerHTML =
+        "⏳ Loading trusted devices...";
+
+    list.innerHTML = "";
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body: JSON.stringify({
+                        action:
+                            "getTrustedAdminDevices",
+
+                        token:
+                            SURYA_ADMIN_TOKEN
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            message.innerHTML =
+                "❌ " +
+                (
+                    data.message ||
+                    "Unable to load trusted devices."
+                );
+
+            return;
+        }
+
+        message.innerHTML =
+            "Trusted devices: " +
+            data.count +
+            " / " +
+            data.maxDevices;
+
+        if (!data.devices || !data.devices.length) {
+
+            list.innerHTML =
+                "<p>No trusted Admin devices found.</p>";
+
+            return;
+        }
+
+        data.devices.forEach(
+            function(device, index) {
+
+                const card =
+                    document.createElement("div");
+
+                card.style.cssText =
+                    "margin:15px 0;" +
+                    "padding:16px;" +
+                    "border:1px solid #ddd;" +
+                    "border-radius:12px;";
+
+                card.innerHTML =
+                    "<strong>📱 Device " +
+                    (index + 1) +
+                    "</strong>" +
+
+                    "<p>🌐 Browser: " +
+                    escapeTrustedDeviceText(
+                        device.browser
+                    ) +
+                    "</p>" +
+
+                    "<p>💻 Platform: " +
+                    escapeTrustedDeviceText(
+                        device.platform
+                    ) +
+                    "</p>" +
+
+                    "<p>🗣️ Language: " +
+                    escapeTrustedDeviceText(
+                        device.language
+                    ) +
+                    "</p>" +
+
+                    "<p>🌍 Timezone: " +
+                    escapeTrustedDeviceText(
+                        device.timezone
+                    ) +
+                    "</p>" +
+
+                    "<p>🖥️ Screen: " +
+                    escapeTrustedDeviceText(
+                        device.screen
+                    ) +
+                    "</p>" +
+
+                    "<p>🕒 Last Seen: " +
+                    escapeTrustedDeviceText(
+                        formatTrustedDeviceDate(device.lastSeen)
+                    ) +
+                    "</p>" +
+
+                    "<button " +
+                    'type="button" ' +
+                    'class="admin-btn" ' +
+                    'data-device-key="' +
+                    escapeTrustedDeviceText(
+                        device.deviceKey
+                    ) +
+                    '">' +
+                    "Remove Device" +
+                    "</button>";
+
+                const button =
+                    card.querySelector(
+                        "button"
+                    );
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        removeTrustedAdminDeviceFromUI(
+                            device.deviceKey
+                        );
+
+                    }
+                );
+
+                list.appendChild(card);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "TRUSTED DEVICES ERROR:",
+            error
+        );
+
+        message.innerHTML =
+            "❌ Unable to connect to backend.";
+
+    }
+}
+
+
+/* ==================================================
+   REMOVE TRUSTED DEVICE
+================================================== */
+
+async function removeTrustedAdminDeviceFromUI(
+    deviceKey
+) {
+
+    if (!deviceKey) return;
+
+    const confirmed =
+        window.confirm(
+            "क्या आप इस trusted Admin device को remove करना चाहते हैं?"
+        );
+
+    if (!confirmed) return;
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body: JSON.stringify({
+                        action:
+                            "removeTrustedAdminDevice",
+
+                        token:
+                            SURYA_ADMIN_TOKEN,
+
+                        deviceKey:
+                            deviceKey
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.success) {
+
+            alert(
+                data.message ||
+                "Device removal failed."
+            );
+
+            return;
+        }
+
+        alert(
+            "✅ Trusted Admin device removed."
+        );
+
+        loadTrustedAdminDevices();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "REMOVE DEVICE ERROR:",
+            error
+        );
+
+        alert(
+            "❌ Unable to connect to backend."
+        );
+
+    }
+}
+
+
+/* ==================================================
+   SAFE DEVICE TEXT
+================================================== */
+
+function escapeTrustedDeviceText(value) {
+
+    return String(
+        value == null
+            ? ""
+            : value
+    )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+</script>
+
+
+    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+
+<script id="admin-settings-js">
+function openAdminSettings(){
+    const panel = document.getElementById("adminSettingsPanel");
+    if(panel){
+        panel.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function closeAdminSettings(){
+    const panel = document.getElementById("adminSettingsPanel");
+    if(panel){
+        panel.style.display = "none";
+        document.body.style.overflow = "";
+    }
+}
+
+document.addEventListener("keydown", function(event){
+    if(event.key === "Escape"){
+        closeAdminSettings();
+    }
+});
+</script>
+
+</body>
+
+</html>

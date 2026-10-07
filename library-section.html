@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library Section | Surya Computer</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/backend-config.js"></script>
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+<style>
+.library-wrap{max-width:900px;margin:24px auto;padding:16px}
+.library-card{padding:18px;border-radius:16px;background:var(--card-bg,#fff);box-shadow:0 6px 22px rgba(0,0,0,.08);margin:12px 0}
+.library-btn{display:inline-block;padding:11px 16px;border-radius:10px;text-decoration:none;background:#1f4f8f;color:#fff;border:0;cursor:pointer;font-size:1rem}
+.library-btn.ghost{background:transparent;color:#1f4f8f;border:1px solid #1f4f8f}
+.item{margin:10px 0;padding:14px;border-radius:12px;border:1px solid rgba(127,127,127,.25)}
+.item.lock{opacity:.75}
+#q{width:100%;box-sizing:border-box;padding:12px;border:1px solid #bbb;border-radius:10px;font-size:1rem;margin:8px 0}
+.muted{opacity:.7}
+</style>
+</head>
+<body>
+<header class="site-header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA DIGITAL LIBRARY</h1><p id="sub">Library Section</p></div></header>
+<nav class="navbar"><a href="library-dashboard.html">← Library Dashboard</a><a href="digital-library.html">Library Home</a></nav>
+<main class="library-wrap">
+  <section class="library-card">
+    <h2 id="title">Loading...</h2>
+    <div id="count" class="muted"></div>
+    <input id="q" type="search" placeholder="🔍 Search title / subject" style="display:none">
+    <div id="list">Loading...</div>
+    <div style="text-align:center;margin-top:10px"><button id="more" class="library-btn ghost" style="display:none">⬇ और दिखाएँ</button></div>
+  </section>
+</main>
+<script>
+(function(){
+'use strict';
+var API=window.SURYA_DATABASE_API,T=sessionStorage.getItem('SURYA_LIBRARY_TOKEN');
+if(!T){location.replace('library-login.html');return;}
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];});}
+
+var SECTIONS={
+  pdf:{title:'📘 Books / PDF',field:'pdfs'},
+  mock:{title:'📝 Mock Tests',field:'mock'},
+  cbt:{title:'🖥️ CBT Examination',cbt:true},
+  recorded:{title:'🎥 Recorded Classes',field:'recorded'},
+  live:{title:'🔴 Live Classes',field:'live'}
+};
+var key=new URLSearchParams(location.search).get('s')||'pdf';
+var sec=SECTIONS[key]||SECTIONS.pdf;
+$('title').textContent=sec.title;
+document.title=sec.title.replace(/^\S+\s/,'')+' | Surya Digital Library';
+
+async function post(body){
+  var r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  var t=await r.text();
+  try{return JSON.parse(t);}catch(e){throw new Error('Server अभी busy है, थोड़ी देर बाद दोबारा try करें.');}
+}
+
+var all=[],shown=0,PAGE=15,filtered=[];
+
+function card(x){
+  var paid=String(x.accessMode||'FREE').toUpperCase()==='PAID';
+  var unlocked=String(x.accessState||'').toUpperCase()==='UNLOCKED';
+  var ok=!paid||unlocked;
+  var status=paid?(ok?'🔓 UNLOCKED':'🔒 PAID — Payment/verification required.'):'🟢 FREE';
+  var sub=sec.cbt?((x.Course||'')+' — '+(x['Subject Name']||'')+' • '+(x.Duration||'')+' min • '+(x['Total Marks']||'')+' marks'):(x.Subject||x.Description||'');
+  var action='';
+  if(ok){
+    if(key==='mock')action='<a class="library-btn" href="library-mock-test.html?testId='+encodeURIComponent(String(x['Test ID']||''))+'">📝 Open Mock Test</a>';
+    else if(key==='cbt')action='<a class="library-btn" href="library-cbt.html?testId='+encodeURIComponent(String(x['Test ID']||''))+'">🖥️ Open CBT Examination</a>';
+    else{
+      var url=x.ViewURL||x['Video URL']||x['Join URL']||'';
+      if(url)action='<a class="library-btn" target="_blank" rel="noopener" href="'+esc(url)+'">'+(key==='live'?'🔴 Join':key==='recorded'?'▶ Watch':'📖 Open / Read')+'</a>';
+    }
+  }
+  return '<div class="item'+(ok?'':' lock')+'"><b>'+esc(x.Title)+'</b><div class="muted">'+esc(sub)+'</div><div style="margin:6px 0">'+status+'</div>'+action+'</div>';
+}
+
+function paint(more){
+  if(!more){shown=0;$('list').innerHTML='';}
+  var next=filtered.slice(shown,shown+PAGE);
+  if(!filtered.length){$('list').innerHTML='<p>इस section में अभी कोई content नहीं है.</p>';$('more').style.display='none';return;}
+  $('list').insertAdjacentHTML('beforeend',next.map(card).join(''));
+  shown+=next.length;
+  $('more').style.display=shown<filtered.length?'inline-block':'none';
+  $('count').textContent=filtered.length+(filtered.length===1?' item':' items');
+}
+
+function applyFilter(){
+  var q=$('q').value.trim().toLowerCase();
+  filtered=!q?all.slice():all.filter(function(x){
+    return (String(x.Title||'')+' '+String(x.Subject||'')+' '+String(x['Subject Name']||'')+' '+String(x.Description||'')).toLowerCase().indexOf(q)>=0;
+  });
+  paint(false);
+}
+
+(async function(){
+  try{
+    if(sec.cbt){
+      var c=await post({action:'libraryPublishedCBTExams',token:T});
+      if(!Array.isArray(c)&&c&&c.success===false)throw new Error(c.message||'CBT list load नहीं हुई.');
+      all=Array.isArray(c)?c:(c.tests||c.exams||[]);
+    }else{
+      var r=await post({action:'libraryContent',token:T});
+      if(!r||!r.success)throw new Error((r&&r.message)||'Session expired');
+      all=r[sec.field]||[];
+    }
+    $('q').style.display=all.length>6?'block':'none';
+    $('q').addEventListener('input',applyFilter);
+    $('more').addEventListener('click',function(){paint(true);});
+    applyFilter();
+  }catch(e){
+    var msg=e.message||String(e);
+    $('list').innerHTML='<p style="color:#b42318">❌ '+esc(msg)+'</p><p><a class="library-btn" href="library-dashboard.html">← Library Dashboard</a> '+(/login|session/i.test(msg)?'<a class="library-btn ghost" href="library-login.html">🔐 Login</a>':'')+'</p>';
+    if(/login|session/i.test(msg))sessionStorage.removeItem('SURYA_LIBRARY_TOKEN');
+  }
+})();
+})();
+</script>
+<script src="assets/js/project-ui.js"></script>
+</body></html>

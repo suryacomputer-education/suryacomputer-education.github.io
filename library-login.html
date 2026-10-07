@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Library Login | Surya Computer</title><link rel="stylesheet" href="assets/css/style.css"><script src="assets/js/backend-config.js"></script>
+<style>
+.library-wrap{max-width:1100px;margin:34px auto;padding:20px}.library-hero{padding:34px;border-radius:20px;background:var(--card-bg,#fff);box-shadow:0 8px 28px rgba(0,0,0,.08);text-align:center}.library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}.library-card{padding:22px;border-radius:16px;background:var(--card-bg,#fff);box-shadow:0 6px 22px rgba(0,0,0,.08)}.library-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}.library-btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;background:#1f4f8f;color:#fff}.library-btn.alt{background:transparent;color:inherit;border:1px solid currentColor}.library-form{max-width:700px;margin:auto;display:grid;gap:12px}.library-form input,.library-form textarea,.library-form select{padding:12px;border-radius:10px;border:1px solid #ccc;width:100%;box-sizing:border-box}.library-status{margin-top:14px;padding:12px;border-radius:10px}.library-table{width:100%;border-collapse:collapse}.library-table th,.library-table td{padding:10px;border-bottom:1px solid #ddd;text-align:left}.lock{opacity:.7}
+.forgot-link{display:block;text-align:center;margin-top:10px;font-size:14px;color:#1f4f8f;text-decoration:none;cursor:pointer}
+.forgot-link:hover{text-decoration:underline}
+.forgot-panel{display:none;margin-top:18px;padding-top:18px;border-top:1px solid #ddd}
+.forgot-panel.open{display:block}
+.forgot-step{display:none}
+.forgot-step.active{display:grid;gap:12px}
+.back-link{font-size:13px;color:#666;cursor:pointer;text-decoration:underline}
+</style>
+<link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body><header class="site-header"><img src="assets/images/logo.png" alt="Logo" class="logo"><div class="title"><h1>SURYA DIGITAL LIBRARY</h1><p>Library Student Login</p></div></header>
+<main class="library-wrap"><section class="library-card">
+<form id="f" class="library-form">
+<input id="id" placeholder="Library ID (e.g. LIB-000001)" required>
+<input id="pw" type="password" placeholder="Password" required>
+<button class="library-btn" type="submit">Login</button>
+</form>
+<div style="text-align:center;margin:14px 0 4px;opacity:.7">— या —</div>
+<div id="googleBtn" style="display:flex;justify-content:center;min-height:44px"></div>
+<div id="googleMsg" class="library-status" style="text-align:center"></div>
+<a class="forgot-link" id="forgotToggle">Forgot Password?</a>
+<a class="forgot-link" href="#" onclick="SuryaGoogleReset.open();return false;">🔑 Gmail (Google) से Password Reset</a>
+<div id="status" class="library-status"></div>
+
+<div id="forgotPanel" class="forgot-panel">
+
+  <div id="stepRequest" class="forgot-step active">
+    <input id="forgotId" placeholder="Library ID (e.g. LIB-000001)">
+    <button class="library-btn" id="btnSendCode" type="button">Send Reset Code</button>
+    <button class="library-btn" type="button" onclick="SuryaGoogleReset.open()" style="background:#fff;color:#1f4f8f;border:1px solid #1f4f8f;margin-top:8px">G Gmail से Reset करें</button>
+    <span class="back-link" id="cancelForgot1">Cancel</span>
+    <div id="forgotStatus1" class="library-status"></div>
+  </div>
+
+  <div id="stepReset" class="forgot-step">
+    <input id="resetCode" placeholder="6-digit code from email">
+    <input id="newPw" type="password" placeholder="New password (min 6 characters)">
+    <input id="newPw2" type="password" placeholder="Confirm new password">
+    <button class="library-btn" id="btnResetPw" type="button">Reset Password</button>
+    <span class="back-link" id="cancelForgot2">Cancel</span>
+    <div id="forgotStatus2" class="library-status"></div>
+  </div>
+
+</div>
+
+</section></main>
+<script>
+const API=window.SURYA_DATABASE_API;
+const f=document.getElementById('f');
+f.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const box=document.getElementById('status');
+  box.textContent='Signing in...';
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'libraryLogin',libraryId:document.getElementById('id').value,password:document.getElementById('pw').value})});
+    const d=await r.json();
+    if(!d.success)throw new Error(d.message||'Login failed');
+    sessionStorage.setItem('SURYA_LIBRARY_TOKEN',d.token);
+    location.href='library-dashboard.html';
+  }catch(err){box.textContent='❌ '+err.message;}
+});
+
+const forgotToggle=document.getElementById('forgotToggle');
+const forgotPanel=document.getElementById('forgotPanel');
+const stepRequest=document.getElementById('stepRequest');
+const stepReset=document.getElementById('stepReset');
+
+forgotToggle.addEventListener('click',()=>{
+  forgotPanel.classList.toggle('open');
+  document.getElementById('forgotId').value=document.getElementById('id').value||'';
+});
+
+document.getElementById('cancelForgot1').addEventListener('click',()=>{forgotPanel.classList.remove('open');});
+document.getElementById('cancelForgot2').addEventListener('click',()=>{
+  stepReset.classList.remove('active');
+  stepRequest.classList.add('active');
+  document.getElementById('forgotStatus2').textContent='';
+});
+
+document.getElementById('btnSendCode').addEventListener('click',async ()=>{
+  const box=document.getElementById('forgotStatus1');
+  const libId=document.getElementById('forgotId').value.trim();
+  if(!libId){box.textContent='❌ Please enter your Library ID.';return;}
+  box.textContent='Sending code...';
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'libraryRequestReset',libraryId:libId})});
+    const d=await r.json();
+    if(!d.success)throw new Error(d.message||'Failed to send code');
+    box.textContent='✅ '+d.message;
+    stepRequest.classList.remove('active');
+    stepReset.classList.add('active');
+  }catch(err){box.textContent='❌ '+err.message;}
+});
+
+document.getElementById('btnResetPw').addEventListener('click',async ()=>{
+  const box=document.getElementById('forgotStatus2');
+  const libId=document.getElementById('forgotId').value.trim();
+  const code=document.getElementById('resetCode').value.trim();
+  const pw1=document.getElementById('newPw').value;
+  const pw2=document.getElementById('newPw2').value;
+  if(!code||!pw1||!pw2){box.textContent='❌ Please fill all fields.';return;}
+  if(pw1!==pw2){box.textContent='❌ Passwords do not match.';return;}
+  if(pw1.length<6){box.textContent='❌ Password must be at least 6 characters.';return;}
+  box.textContent='Resetting...';
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'libraryResetPassword',libraryId:libId,resetCode:code,newPassword:pw1})});
+    const d=await r.json();
+    if(!d.success)throw new Error(d.message||'Reset failed');
+    box.textContent='✅ '+d.message+' You can login now.';
+    setTimeout(()=>{
+      forgotPanel.classList.remove('open');
+      stepReset.classList.remove('active');
+      stepRequest.classList.add('active');
+      document.getElementById('id').value=libId;
+      document.getElementById('forgotStatus1').textContent='';
+      document.getElementById('forgotStatus2').textContent='';
+    },2000);
+  }catch(err){box.textContent='❌ '+err.message;}
+});
+</script>
+<script src="assets/js/project-ui.js"></script>
+<script src="assets/js/google-login.js"></script>
+<script>SuryaGoogleLogin({mode:'library',buttonId:'googleBtn',messageId:'googleMsg'});</script>
+</body></html>

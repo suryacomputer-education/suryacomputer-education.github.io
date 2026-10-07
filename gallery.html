@@ -1,0 +1,211 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : gallery.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 06-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Gallery | SURYA COMPUTER OF EDUCATION CENTER</title>
+    <meta name="description" content="SURYA COMPUTER OF EDUCATION CENTER gallery: institute, computer setup, practical training, events and computer education photos from Kamalpur, Chandauli.">
+    <meta name="keywords" content="Surya Computer gallery, computer institute Kamalpur photos, computer training Chandauli">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://suryacomputer-education.github.io/gallery.html">
+    <meta property="og:title" content="Institute Gallery | Surya Computer Kamalpur">
+    <meta property="og:description" content="SURYA COMPUTER OF EDUCATION CENTER gallery: institute, computer setup, practical training, events and computer education photos from Kamalpur, Chandauli.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suryacomputer-education.github.io/gallery.html">
+    <meta property="og:image" content="assets/images/favicon-512.png">
+
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<div class="top-bar">
+📞 <a href="tel:+917084275870">7084275870</a> | ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+<header class="header">
+
+<img src="assets/images/logo.png" class="logo">
+
+<div class="title">
+<h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+<p>Kamalpur, Chandauli, Uttar Pradesh</p>
+</div>
+
+</header>
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+            <a href="digital-library.html">Digital Library</a>
+    <a href="admission.html">Admission</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<section class="gallery-page">
+<h2>Institute Gallery</h2>
+<p class="gallery-intro">Institute ki photos ko category-wise dekhiye. Kisi bhi photo par tap karke full-screen viewer kholiye aur left/right swipe se next photo dekhiye.</p>
+
+<div id="gallerySections" class="gallery-sections">
+  <section class="gallery-category"><h3>📢 Promotional Banner</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0000.jpg" alt="Computer education promotional banner" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>🖼️ Institute</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0001.jpg" alt="SURYA Computer of Education Center" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>💻 Computer Setup</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0002.jpg" alt="Computer setup" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>👩‍💻 Practical Training</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0003.jpg" alt="Practical computer training" loading="lazy">
+  </div></section>
+  <section class="gallery-category"><h3>☁️ Cloud &amp; Cybersecurity</h3><div class="gallery-grid">
+    <img src="assets/images/imejeg2/IMG-20260822-WA0006.jpg" alt="Cloud and cybersecurity learning" loading="lazy">
+  </div></section>
+</div>
+
+<section class="gallery-category" style="margin-top:28px"><h3>✨ Latest Admin Uploads</h3><div id="uploadedGallery" class="gallery-grid"><p>Loading latest photos...</p></div></section>
+</section>
+
+<footer class="footer">
+
+<p>© 2026 SURYA COMPUTER OF EDUCATION CENTER</p>
+
+</footer>
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/project-ui.js"></script>
+<script>
+const GALLERY_API=window.SURYA_DATABASE_API;
+let galleryImages=[];
+let galleryIndex=0;
+let galleryViewer=null;
+
+function gEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function mediaImageUrl(item){return String(item?.thumbnailUrl||item?.url||'').trim();}
+
+function renderUploadedGallery(items){
+  const host=document.getElementById('uploadedGallery');
+  if(!host)return;
+  if(!items.length){host.innerHTML='<p>No admin-uploaded photos yet.</p>';return;}
+  const groups={};
+  items.forEach(x=>(groups[x.category||'Institute']??=[]).push(x));
+  host.parentElement.innerHTML=Object.entries(groups).map(([cat,list])=>`<section class="gallery-category"><h3>${gEsc(cat)}</h3><div class="gallery-grid">${list.map(x=>{const u=mediaImageUrl(x);return `<figure class="gallery-item"><img src="${gEsc(u)}" data-gallery-src="${gEsc(u)}" data-gallery-alt="${gEsc(x.title)}" alt="${gEsc(x.title)}" title="${gEsc(x.title)}" loading="lazy"><figcaption>${gEsc(x.title)}</figcaption></figure>`;}).join('')}</div></section>`).join('');
+  bindImageErrors();
+}
+
+function bindImageErrors(){
+  document.querySelectorAll('.gallery-grid img').forEach(img=>{
+    img.addEventListener('error',function(){
+      if(this.dataset.fallbackTried==='1')return;
+      this.dataset.fallbackTried='1';
+      const src=this.dataset.gallerySrc||this.src;
+      const m=src.match(/[?&]id=([^&]+)/);
+      if(m){this.src='https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w1200';return;}
+      this.classList.add('gallery-image-error');
+    },{once:false});
+  });
+}
+
+async function loadUploadedGallery(){
+  try{
+    const r=await fetch(GALLERY_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'publicMedia'})});
+    const d=await r.json();
+    renderUploadedGallery(Array.isArray(d.media)?d.media:[]);
+  }catch(e){
+    const host=document.getElementById('uploadedGallery');
+    if(host)host.innerHTML='<p>Latest uploads are temporarily unavailable.</p>';
+  }
+}
+
+function allGalleryImages(){
+  return Array.from(document.querySelectorAll('.gallery-grid img')).filter(img=>img.offsetParent!==null || img.closest('.gallery-page'));
+}
+
+function openGallery(index){
+  galleryImages=allGalleryImages();
+  if(!galleryImages.length)return;
+  galleryIndex=Math.max(0,Math.min(index,galleryImages.length-1));
+  if(!galleryViewer){
+    galleryViewer=document.createElement('div');
+    galleryViewer.className='gallery-lightbox';
+    galleryViewer.setAttribute('role','dialog');
+    galleryViewer.setAttribute('aria-modal','true');
+    galleryViewer.innerHTML=`
+      <button class="gallery-close" type="button" aria-label="Close">×</button>
+      <button class="gallery-prev" type="button" aria-label="Previous photo">‹</button>
+      <div class="gallery-viewer-stage"><img class="gallery-viewer-image" alt=""><div class="gallery-counter"></div></div>
+      <button class="gallery-next" type="button" aria-label="Next photo">›</button>`;
+    document.body.appendChild(galleryViewer);
+    galleryViewer.querySelector('.gallery-close').addEventListener('click',closeGallery);
+    galleryViewer.querySelector('.gallery-prev').addEventListener('click',()=>moveGallery(-1));
+    galleryViewer.querySelector('.gallery-next').addEventListener('click',()=>moveGallery(1));
+    galleryViewer.addEventListener('click',e=>{if(e.target===galleryViewer)closeGallery();});
+    document.addEventListener('keydown',galleryKeyHandler);
+    let sx=0,sy=0;
+    galleryViewer.addEventListener('touchstart',e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY;},{passive:true});
+    galleryViewer.addEventListener('touchend',e=>{const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))moveGallery(dx<0?1:-1);},{passive:true});
+  }
+  galleryViewer.classList.add('is-open');
+  document.body.classList.add('gallery-viewer-open');
+  updateGalleryViewer();
+}
+
+function updateGalleryViewer(){
+  if(!galleryViewer)return;
+  galleryImages=allGalleryImages();
+  if(!galleryImages.length){closeGallery();return;}
+  galleryIndex=(galleryIndex+galleryImages.length)%galleryImages.length;
+  const source=galleryImages[galleryIndex];
+  const img=galleryViewer.querySelector('.gallery-viewer-image');
+  img.src=source.dataset.gallerySrc||source.src;
+  img.alt=source.dataset.galleryAlt||source.alt||'SURYA Gallery photo';
+  galleryViewer.querySelector('.gallery-counter').textContent=(galleryIndex+1)+' / '+galleryImages.length;
+  galleryViewer.querySelector('.gallery-prev').disabled=galleryImages.length<2;
+  galleryViewer.querySelector('.gallery-next').disabled=galleryImages.length<2;
+}
+
+function moveGallery(step){if(!galleryImages.length)galleryImages=allGalleryImages();galleryIndex+=step;updateGalleryViewer();}
+function closeGallery(){if(!galleryViewer)return;galleryViewer.classList.remove('is-open');document.body.classList.remove('gallery-viewer-open');}
+function galleryKeyHandler(e){if(!galleryViewer?.classList.contains('is-open'))return;if(e.key==='Escape')closeGallery();else if(e.key==='ArrowLeft')moveGallery(-1);else if(e.key==='ArrowRight')moveGallery(1);}
+
+document.addEventListener('click',e=>{const img=e.target.closest('.gallery-grid img');if(!img)return;const imgs=allGalleryImages();const index=imgs.indexOf(img);if(index>=0)openGallery(index);});
+bindImageErrors();
+loadUploadedGallery();
+</script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

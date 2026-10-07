@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin – Digital Library</title><link rel="stylesheet" href="assets/css/style.css"><script src="assets/js/backend-config.js"></script>
+<style>
+.library-wrap{max-width:1100px;margin:34px auto;padding:20px}.library-hero{padding:34px;border-radius:20px;background:var(--card-bg,#fff);box-shadow:0 8px 28px rgba(0,0,0,.08);text-align:center}.library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:24px}.library-card{padding:22px;border-radius:16px;background:var(--card-bg,#fff);box-shadow:0 6px 22px rgba(0,0,0,.08)}.library-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}.library-btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;background:#1f4f8f;color:#fff}.library-btn.alt{background:transparent;color:inherit;border:1px solid currentColor}.library-form{max-width:700px;margin:auto;display:grid;gap:12px}.library-form input,.library-form textarea,.library-form select{padding:12px;border-radius:10px;border:1px solid #ccc;width:100%;box-sizing:border-box}.library-status{margin-top:14px;padding:12px;border-radius:10px}.library-table{width:100%;border-collapse:collapse}.library-table th,.library-table td{padding:10px;border-bottom:1px solid #ddd;text-align:left}.lock{opacity:.7}
+</style>
+<script src="assets/js/admin-guard.js"></script><link rel="stylesheet" href="assets/css/project-ui.css">
+<link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+<body><main class="library-wrap"><section class="library-hero"><h2>📚 Digital Library – Admin</h2><p>Library admissions और students manage करें.</p></section><section id="membership" class="library-card" style="margin-top:20px">
+<h3>💳 Library Membership Management</h3>
+<p>Admin यहाँ Library Membership की fee और validity manage कर सकता है.</p>
+<div class="library-form">
+<label>Membership Plan
+<input id="membershipPlan" value="Standard" readonly>
+</label>
+<label>Membership Fee (₹)
+<input id="membershipFee" type="number" min="0" step="1" value="100">
+</label>
+<label>Validity (Days)
+<input id="membershipValidity" type="number" min="1" max="3650" step="1" value="30">
+</label>
+<button class="library-btn" type="button" onclick="saveMembershipSettings()">💾 Save Membership Settings</button>
+<div id="membershipStatus" class="library-status"></div>
+</div>
+</section>
+<section class="library-card"><h3>Pending / Recent Admissions</h3><div id="apps">Loading...</div></section><section class="library-card" style="margin-top:20px"><h3>Library Students</h3><div id="students">Loading...</div></section></main><script>const API=window.SURYA_DATABASE_API,T=sessionStorage.getItem('SURYA_ADMIN_TOKEN')||localStorage.getItem('SURYA_ADMIN_TOKEN');function table(rows,type){if(!rows.length)return '<p>No records.</p>';return '<div style="overflow:auto"><table class="library-table"><thead><tr>'+Object.keys(rows[0]).filter(k=>k!=='_row').map(k=>'<th>'+k+'</th>').join('')+'<th>Action</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+Object.keys(rows[0]).filter(k=>k!=='_row').map(k=>'<td>'+String(r[k]??'')+'</td>').join('')+'<td>'+(type==='app'&&String(r.Status||'')==='Pending'?'<button onclick="act(\''+r['Application ID']+'\',\'approve\')">Approve</button> <button onclick="act(\''+r['Application ID']+'\',\'reject\')">Reject</button>':'—')+'</td></tr>').join('')+'</tbody></table></div>';}async function loadMembershipSettings(){
+  const box=document.getElementById('membershipStatus');
+  try{
+    box.textContent='Loading membership settings...';
+    const d=await fetch(API,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'libraryMembershipSettingsGet',
+        token:T
+      })
+    }).then(r=>r.json());
+
+    if(!d.success) throw new Error(d.message||'Unable to load membership settings.');
+
+    document.getElementById('membershipPlan').value=d.membershipPlan||'Standard';
+    document.getElementById('membershipFee').value=d.fee;
+    document.getElementById('membershipValidity').value=d.validityDays;
+
+    box.textContent='Current membership settings loaded.';
+  }catch(e){
+    box.textContent='❌ '+e.message;
+  }
+}
+
+async function saveMembershipSettings(){
+  const box=document.getElementById('membershipStatus');
+  const fee=Number(document.getElementById('membershipFee').value);
+  const validityDays=Number(document.getElementById('membershipValidity').value);
+
+  if(!Number.isFinite(fee)||fee<0){
+    box.textContent='❌ Invalid membership fee.';
+    return;
+  }
+
+  if(!Number.isInteger(validityDays)||validityDays<1||validityDays>3650){
+    box.textContent='❌ Validity must be between 1 and 3650 days.';
+    return;
+  }
+
+  if(!confirm('Save Library Membership settings?')) return;
+
+  try{
+    box.textContent='Saving...';
+
+    const d=await fetch(API,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'libraryMembershipSettingsSave',
+        token:T,
+        fee:fee,
+        validityDays:validityDays
+      })
+    }).then(r=>r.json());
+
+    if(!d.success) throw new Error(d.message||'Unable to save membership settings.');
+
+    document.getElementById('membershipFee').value=d.fee;
+    document.getElementById('membershipValidity').value=d.validityDays;
+    box.textContent='✅ '+(d.message||'Membership settings saved successfully.');
+  }catch(e){
+    box.textContent='❌ '+e.message;
+  }
+}
+
+async function load(){try{const a=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'libraryAdmissions',token:T})}).then(r=>r.json());if(!a.success)throw new Error(a.message);document.getElementById('apps').innerHTML=table(a.applications,'app');const s=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'libraryStudents',token:T})}).then(r=>r.json());if(!s.success)throw new Error(s.message);document.getElementById('students').innerHTML=table(s.students,'student');}catch(e){document.getElementById('apps').innerHTML='❌ '+e.message;document.getElementById('students').innerHTML='';}}async function act(id,kind){const action=kind==='approve'?'libraryApprove':'libraryReject';if(!confirm((kind==='approve'?'Approve ':'Reject ')+id+'?'))return;const d=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,token:T,applicationId:id})}).then(r=>r.json());alert(d.message||'Done');load();}loadMembershipSettings();load();</script><script src="assets/js/project-ui.js"></script>
+</body></html>

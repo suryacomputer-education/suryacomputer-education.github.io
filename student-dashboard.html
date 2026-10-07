@@ -1,0 +1,424 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : student-dashboard.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Student Dashboard | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/student-signature.js"></script>
+    <script src="assets/js/student-marcsheet.js"></script>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+<link rel="icon" href="assets/images/favicon.ico" sizes="any">
+</head>
+
+<body>
+
+<!--==================================================
+TOP BAR
+==================================================-->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+
+<!--==================================================
+HEADER
+==================================================-->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+
+<!--==================================================
+NAVIGATION
+==================================================-->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="courses.html">Courses</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+
+<!--==================================================
+STUDENT DASHBOARD
+==================================================-->
+
+<section class="student-dashboard">
+
+<div id="studentWelcome" class="student-welcome" role="status" aria-live="polite">
+    <strong id="studentWelcomeTitle">🎊 Hello, <span id="dashboardStudentName">Loading...</span>! 🎉</strong>
+    <span id="studentWelcomeSub" class="student-welcome-sub">Welcome to SURYA COMPUTER OF EDUCATION CENTER</span>
+</div>
+
+    </div>
+
+
+    <!-- PROFILE -->
+
+    <div class="dashboard-card">
+
+        <h3>👤 Student Profile</h3>
+
+        <div style="text-align:center; margin:15px 0;">
+            <img
+                id="dashboardStudentPhoto"
+                src="assets/images/student-placeholder.svg"
+                alt="Student Photo"
+                style="width:120px; height:150px; object-fit:cover; border-radius:8px; border:1px solid #ddd;"
+                onerror="this.src='assets/images/student-placeholder.svg'"
+            >
+        </div>
+
+        <p>
+            <strong>Student Name:</strong>
+            <span id="dashboardName">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Student ID:</strong>
+            <span id="dashboardId">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Course:</strong>
+            <span id="dashboardCourse">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Mobile:</strong>
+            <span id="dashboardMobile">Loading...</span>
+        </p>
+
+        <p>
+            <strong>Admission Year:</strong>
+            2026
+        </p>
+
+        <p>
+            <strong>Course Status:</strong>
+            <span id="dashboardStatus">Loading...</span>
+        </p>
+
+    </div>
+
+
+    <!-- FEES -->
+    <div class="dashboard-card">
+        <h3>💰 My Fees</h3>
+        <p>Total Fee: <strong id="feeTotal">Loading...</strong></p>
+        <p>Discount: <strong id="feeDiscount">—</strong></p>
+        <p>Final Payable: <strong id="feeFinal">—</strong></p>
+        <p>Paid: <strong id="feePaid">—</strong></p>
+        <p>Due: <strong id="feeDue">—</strong></p>
+        <p>Status: <strong id="feeStatus">—</strong></p>
+        <div id="feeHistory" style="margin-top:10px;"></div>
+        <button type="button" class="dashboard-btn" onclick="payFeesOnline()">💳 Pay Fees Online</button>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="dashboard-card">
+        <h3>📅 My Attendance</h3>
+        <div id="attendanceSummary">Loading attendance...</div>
+        <div id="attendanceHistory" style="margin-top:10px;max-height:220px;overflow:auto;"></div>
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div class="dashboard-card">
+
+        <h3>📊 Examination Result</h3>
+
+        <p>
+            Check your latest examination result.
+        </p>
+
+        <a href="result.html" class="dashboard-btn">
+            Check Result
+        </a>
+
+    </div>
+
+
+    <!-- CERTIFICATE -->
+
+    <div class="dashboard-card">
+
+        <h3>📜 Certificate</h3>
+
+        <p>
+            Verify your course certificate.
+        </p>
+
+        <a href="certificate.html" class="dashboard-btn">
+            Verify Certificate
+        </a>
+
+    </div>
+
+
+    <!-- COURSES -->
+
+    <div class="dashboard-card">
+
+        <h3>📚 My Course</h3>
+
+        <p>
+            Current Course: <strong id="myCourseValue">Loading...</strong>
+        </p>
+
+        <a href="courses.html" class="dashboard-btn">
+            View Courses
+        </a>
+
+    </div>
+
+
+    <!-- NOTICES -->
+
+    <div class="dashboard-card">
+
+        <h3>📢 Latest Notices</h3>
+
+        <p>
+            Check the latest institute announcements.
+        </p>
+
+        <a href="index.html" class="dashboard-btn">
+            View Notices
+        </a>
+
+    </div>
+
+
+    <!-- MOCK TEST -->
+    <div class="dashboard-card" style="border:2px solid rgba(23,105,170,.25);box-shadow:0 10px 28px rgba(23,105,170,.12);">
+        <h3>📝 Mock Test Center</h3>
+        <p>Published online tests दें, instant score देखें और attempt history रखें.</p>
+        <p><strong id="mockCount">Loading available tests...</strong></p>
+        <a href="mock-test.html" class="dashboard-btn">🚀 Open Mock Test Center</a>
+    </div>
+
+    <!-- CBT EXAMINATION -->
+<div class="dashboard-card" style="border:2px solid rgba(23,105,170,.25);box-shadow:0 10px 28px rgba(23,105,170,.12);">
+    <h3>🖥️ CBT Examination</h3>
+    <p>Official computer-based examinations दें, समयबद्ध परीक्षा पूरी करें और अपना परिणाम देखें.</p>
+    <p><strong id="cbtCount">Loading available exams...</strong></p>
+    <a href="mock-test.html?mode=cbt" class="dashboard-btn">🖥️ Open CBT Examination</a>
+</div>
+
+<!-- LIVE CLASSES -->
+    <div class="dashboard-card">
+        <h3>🔴 Live Classes</h3>
+        <p>आपके course की published live classes देखें.</p>
+        <a href="live-classes.html" class="dashboard-btn">Open Live Classes</a>
+    </div>
+
+    <!-- STUDY MATERIALS -->
+    <div class="dashboard-card">
+        <h3>📚 Study Materials</h3>
+        <p>आपके course के available PDF study materials पढ़ें.</p>
+        <a href="study-materials.html" class="dashboard-btn">📖 Open Study Materials</a>
+    </div>
+<!-- RECORDED CLASSES -->
+<div class="dashboard-card">
+    <h3>🎥 Recorded Classes</h3>
+    <p>अपने course की recorded video classes देखें.</p>
+    <a href="recorded-classes.html" class="dashboard-btn">
+        ▶️ Open Recorded Classes
+    </a>
+</div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="dashboard-card">
+        <h3>🔑 Password</h3>
+        <p>अपना student portal password बदलें.</p>
+        <button class="dashboard-btn" onclick="changePassword()">Change Password</button>
+    </div>
+
+    <!-- LOGOUT -->
+
+    <div class="dashboard-logout">
+
+        <button onclick="logoutStudent()">
+            🚪 Logout
+        </button>
+
+    </div>
+
+</section>
+
+
+<!--==================================================
+FOOTER
+==================================================-->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>SURYA COMPUTER OF EDUCATION CENTER</h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">+91 7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!--==================================================
+DASHBOARD SCRIPT
+==================================================-->
+
+<script>
+const STUDENT_API=window.SURYA_DATABASE_API;
+const STUDENT_TOKEN=sessionStorage.getItem("SURYA_STUDENT_TOKEN");
+async function studentApi(body){const r=await fetch(STUDENT_API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...body,token:STUDENT_TOKEN})});const d=await r.json();if(!d.success)throw new Error(d.message||"Request failed");return d;}
+async function loadStudentDashboard(){
+ if(!STUDENT_TOKEN){location.href="student-login.html";return;}
+ try{
+  const d=await studentApi({action:"studentMe"}); const s=d.student||{};
+  document.getElementById("dashboardStudentName").textContent=s["Student Name"]||"Student";
+  document.getElementById("dashboardName").textContent=s["Student Name"]||"N/A";
+  document.getElementById("dashboardId").textContent=s["Student ID"]||"N/A";
+  document.getElementById("dashboardCourse").textContent=s.Course||"N/A";
+  const welcomeBox=document.getElementById("studentWelcome");
+  const welcomeTitle=document.getElementById("studentWelcomeTitle");
+  const welcomeSub=document.getElementById("studentWelcomeSub");
+  const welcomeKey="SURYA_STUDENT_WELCOMED_"+String(s["Student ID"]||"").trim().toUpperCase();
+  const isFirstLogin=!localStorage.getItem(welcomeKey);
+  if(isFirstLogin){welcomeTitle.innerHTML="🎊 Hello, <span>"+(s["Student Name"]||"Student")+"</span>! 🎉";welcomeSub.textContent="Welcome to SURYA COMPUTER OF EDUCATION CENTER";localStorage.setItem(welcomeKey,"1");}
+  else{welcomeTitle.innerHTML="🎊 Welcome, <span>"+(s["Student Name"]||"Student")+"</span>! 🎉";welcomeSub.classList.add("is-hidden");}
+  setTimeout(()=>welcomeBox.classList.add("is-hidden"),5000);
+  document.getElementById("myCourseValue").textContent=s.Course||"N/A";
+  document.getElementById("dashboardMobile").textContent=s.Mobile||"N/A";
+  document.getElementById("dashboardStatus").textContent=s.Status||"N/A";
+  try {
+   const at=await studentApi({action:"studentAttendance"});
+   const a=at.summary||{};
+   document.getElementById("attendanceSummary").innerHTML=`<p><b>Working Days:</b> ${a.workingDays||0}</p><p>✅ Present: <b>${a.present||0}</b> &nbsp; ❌ Absent: <b>${a.absent||0}</b> &nbsp; ⏱️ Late: <b>${a.late||0}</b> &nbsp; 📝 Excused: <b>${a.excused||0}</b></p><p><b>Attendance:</b> ${Number(a.percentage||0).toFixed(2)}%</p>`;
+   document.getElementById("attendanceHistory").innerHTML=(at.history||[]).length?'<b>History</b><br>'+(at.history||[]).map(x=>`${x.date} • ${x.course||""} • <b>${x.status}</b>${x.reason?" • "+x.reason:""}`).join('<br>'):'No saved attendance yet.';
+  } catch(e) { document.getElementById("attendanceSummary").textContent="Attendance details unavailable"; }
+  try {
+   const mt=await studentApi({action:"publishedMockTests"});
+   const count=(mt.tests||[]).length;
+   document.getElementById("mockCount").textContent=count ? (count+" published test"+(count===1?"":"s")+" available") : "No published tests right now";
+  } catch(e) { document.getElementById("mockCount").textContent="Mock test center available"; }
+
+  try {
+   const cbt=await studentApi({action:"publishedCBTExams"});
+   const cbtCount=(cbt.tests||[]).length;
+   document.getElementById("cbtCount").textContent=cbtCount ? (cbtCount+" CBT exam"+(cbtCount===1?"":"s")+" available") : "No CBT exams right now";
+  } catch(e) { document.getElementById("cbtCount").textContent="CBT examination center available"; }
+  try {
+   const fd=await studentApi({action:"studentFeeSummary"});
+   const f=fd.fee||{}; const money=v=>"₹"+Number(v||0).toLocaleString("en-IN");
+   document.getElementById("feeTotal").textContent=money(f["Course Fee"]);
+   document.getElementById("feeDiscount").textContent=money(f["Full Payment Discount"]);
+   document.getElementById("feeFinal").textContent=money(f["Final Payable"]);
+   document.getElementById("feePaid").textContent=money(f.Paid);
+   document.getElementById("feeDue").textContent=money(f.Due);
+   document.getElementById("feeStatus").textContent=f.Status||"Not available";
+   document.getElementById("feeHistory").innerHTML=(fd.payments||[]).length ? "<b>Payment History</b><br>"+(fd.payments||[]).map(p=>`${p.receiptNumber||"—"} • ${money(p.amount)} • ${p.mode||""} • ${p.status||""} • ${formatSuryaDateTime(p.date)}`).join("<br>") : "No payment history yet.";
+  } catch(e) { document.getElementById("feeStatus").textContent="Fee details unavailable"; }
+  const studentPhoto = document.getElementById("dashboardStudentPhoto");
+  try {
+    const pd = await studentApi({action:"studentOwnPhoto"});
+    if (pd && pd.success && pd.data) {
+      studentPhoto.src = "data:" + (pd.mimeType || "image/jpeg") + ";base64," + pd.data;
+    } else {
+      studentPhoto.src = "assets/images/student-placeholder.svg";
+    }
+  } catch (_) {
+    studentPhoto.src = "assets/images/student-placeholder.svg";
+  }
+ }catch(e){sessionStorage.clear();alert("❌ "+e.message);location.href="student-login.html";}
+}
+async function changePassword(){const current=prompt("Current password:");if(current===null)return;const next=prompt("New password (8+ characters):");if(next===null)return;try{const d=await studentApi({action:"studentChangePassword",currentPassword:current,newPassword:next});alert(d.message||"Password changed successfully.");}catch(e){alert("❌ "+e.message);}}
+async function payFeesOnline(){
+  try {
+    const fd=await studentApi({action:"studentFeeSummary"});
+    const due=Number((fd.fee||{}).Due||0);
+    if(due<=0){alert("✅ आपकी सभी fees paid हैं. कोई amount due नहीं है.");return;}
+    const raw=prompt("कितनी fee UPI से pay करनी है?", String(Math.round(due)));
+    if(raw===null)return;
+    const amount=Number(String(raw).replace(/,/g,""));
+    if(!Number.isFinite(amount)||amount<=0||amount>due){alert("❌ Amount ₹1 से ₹"+due.toLocaleString("en-IN")+" के बीच होना चाहिए.");return;}
+    const od=await studentApi({action:"requestStudentUpiPayment",amount:amount});
+    if(!od.success)throw new Error(od.message||"Unable to create UPI payment request.");
+    const u=od.upi||{}; const uri=od.upiUri||"";
+    const box=document.createElement("div"); box.style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;";
+    const safeUpi=String(u.upiId||""); const safeRef=String(od.reference||"");
+    box.innerHTML='<div style="background:#fff;color:#111;max-width:460px;width:100%;padding:20px;border-radius:16px;text-align:center;line-height:1.6"><h2>📲 Direct UPI Payment</h2><p><b>Student ID:</b> '+String((await studentApi({action:"studentMe"})).student["Student ID"]||sessionStorage.getItem("SURYA_STUDENT_ID")||"")+'</p><p><b>UPI ID:</b> <span id="studentUpiId">'+safeUpi+'</span></p><p><b>Amount:</b> ₹'+Number(od.amount||0).toLocaleString("en-IN")+'</p><p><b>Reference:</b> <span id="studentUpiRef">'+safeRef+'</span></p><div id="studentUpiQr" style="display:flex;justify-content:center;margin:12px 0"></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a id="openUpiApp" href="'+String(uri).replace(/&/g,"&amp;")+ '" class="dashboard-btn" style="text-decoration:none">📲 Open UPI App</a><button id="copyUpiId" type="button">Copy UPI ID</button><button id="copyUpiRef" type="button">Copy Reference</button></div><p style="font-size:13px">PhonePe/Google Pay button open न करे तो ऊपर UPI ID copy करके उसी app में payment करें, या QR scan करें.</p><p id="studentUpiStatus"><b>PENDING VERIFICATION</b></p><button id="closeUpi" type="button">Close</button></div>';
+    document.body.appendChild(box);
+    if(typeof QRCode!=="undefined"&&uri)new QRCode(document.getElementById("studentUpiQr"),{text:uri,width:220,height:220});
+    document.getElementById("copyUpiId").onclick=()=>navigator.clipboard?.writeText(safeUpi);
+    document.getElementById("copyUpiRef").onclick=()=>navigator.clipboard?.writeText(safeRef);
+    let timer=setInterval(async()=>{try{const st=await studentApi({action:"upiPaymentStatus",requestId:od.requestId});if(st.status==="VERIFIED_SUCCESS"){document.getElementById("studentUpiStatus").innerHTML="✅ VERIFIED — Receipt: "+(st.receiptNumber||"—");clearInterval(timer);await loadStudentDashboard();}else if(st.status==="REJECTED"){document.getElementById("studentUpiStatus").innerHTML="❌ Payment not verified. Please contact the institute.";clearInterval(timer);}}catch(_){}},10000);
+    document.getElementById("closeUpi").onclick=()=>{clearInterval(timer);box.remove();};
+  } catch(e) { alert("❌ "+e.message); }
+}
+async function logoutStudent(){try{await studentApi({action:"studentLogout"});}catch(e){}sessionStorage.removeItem("SURYA_STUDENT_TOKEN");sessionStorage.removeItem("SURYA_STUDENT_ID");sessionStorage.removeItem("SURYA_STUDENT_AUTH");location.href="student-login.html";}
+loadStudentDashboard();
+</script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="assets/js/project-ui.js"></script>
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

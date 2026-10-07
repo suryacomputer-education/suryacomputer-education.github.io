@@ -1,0 +1,1623 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : admin-courses.html
+Version : v1.1.0-FIX1
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 09-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Course Management | Surya Computer Of Education Center</title>
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="assets/css/responsive.css">
+
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <script src="assets/js/admin-guard.js"></script>
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<style>
+.course-form-card,.course-list{max-width:1000px;margin:18px auto;padding:18px;background:var(--cimp-panel,#fff);border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.course-form-card input,.course-form-card select,.course-form-card textarea{display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0;border:1px solid #cbd5e1;border-radius:9px;}
+.course-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.course-actions button,.course-form-card>button{padding:11px 16px;border:0;border-radius:9px;cursor:pointer;}
+.course-record{border:1px solid #dbe2ea;border-radius:12px;padding:14px;margin:10px 0;display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;}
+.course-record .actions{display:flex;gap:7px;flex-wrap:wrap;}
+.course-record button{padding:9px 12px;border:0;border-radius:8px;cursor:pointer;}
+.course-message{margin-top:8px;font-weight:700;}
+</style>
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png"
+         alt="Logo"
+         class="logo">
+
+    <div class="title">
+
+        <h1>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h1>
+
+        <p>
+            Course Management
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+
+    <a href="admin.html">
+        Admin Dashboard
+    </a>
+
+    <a href="admin-students.html">
+        Students
+    </a>
+
+    <a href="admin-results.html">
+        Results
+    </a>
+
+    <a href="admin-notices.html">
+        Notices
+    </a>
+
+</nav>
+
+
+<!-- COURSE MANAGEMENT -->
+
+<section class="admin-courses">
+
+    <div class="admin-header">
+        <h2>📚 Course & Subject Management</h2>
+        <p>Manage courses and their subjects</p>
+    </div>
+
+    <!-- COURSE MANAGEMENT -->
+
+    <div class="course-form-card">
+        <h3>➕📚 Add / Edit Course</h3>
+
+        <input type="hidden" id="courseEditId">
+
+        <input
+            type="text"
+            id="courseId"
+            placeholder="Course ID e.g. ADCA"
+            autocomplete="off"
+            required
+        >
+
+        <input
+            type="text"
+            id="courseName"
+            placeholder="Course Name"
+            autocomplete="off"
+            required
+        >
+
+        <input
+            type="text"
+            id="courseDuration"
+            placeholder="Duration e.g. 6 Months"
+            autocomplete="off"
+            required
+        >
+
+        <input
+            type="text"
+            inputmode="decimal"
+            id="courseFee"
+            min="0"
+            required
+            placeholder="Course Fee"
+            autocomplete="off"
+        >
+
+        <input
+            type="text"
+            inputmode="decimal"
+            id="fullPaymentDiscount"
+            min="0"
+            placeholder="Full Payment Discount (optional)"
+            autocomplete="off"
+        >
+
+        <input
+            type="text"
+            inputmode="decimal"
+            id="admissionFee"
+            min="0"
+            placeholder="Admission Fee (optional)"
+            autocomplete="off"
+        >
+
+        <textarea
+            id="courseDescription"
+            rows="3"
+            placeholder="Course Description"
+        ></textarea>
+
+        <select id="courseStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+
+        <div class="course-actions">
+            <button type="button" onclick="saveCourse()">💾 Save Course</button>
+            <button type="button" onclick="clearCourseForm()">🧹 Clear</button>
+        </div>
+
+        <div id="courseMessage" class="course-message"></div>
+        <small style="display:block;margin-top:6px;opacity:.65">Course Manager build: 2026-09-13-FIX1</small>
+    </div>
+
+    <div class="course-list">
+        <h3>📚 All Courses</h3>
+        <div id="courseList"><p>Loading courses...</p></div>
+    </div>
+
+    <!-- COURSE SELECTOR -->
+
+    <div class="course-form-card">
+
+        <h3>📘 Select Course</h3>
+
+        <select id="courseSelect">
+            <option value="">-- Select Course --</option>
+        </select>
+
+        <button
+            type="button"
+            onclick="loadCourseSubjects()"
+        >
+            🔄 Load Subjects
+        </button>
+
+    </div>
+
+
+    <!-- ADD SUBJECT -->
+
+    <div class="course-form-card">
+
+        <h3>➕ Add Subject</h3>
+
+        <input
+            type="text"
+            id="subjectId"
+            placeholder="Subject ID"
+        >
+
+        <input
+            type="text"
+            id="subjectName"
+            placeholder="Subject Name"
+        >
+
+        <input
+            type="number"
+            id="maxMarks"
+            placeholder="Max Marks"
+            value="100"
+        >
+
+        <input
+            type="number"
+            id="passMarks"
+            placeholder="Pass Marks"
+            value="33"
+        >
+
+        <button
+            type="button"
+            onclick="addSubject()"
+        >
+            ➕ Add Subject
+        </button>
+
+    </div>
+
+
+    <!-- SUBJECT LIST -->
+
+    <div class="course-list">
+
+        <h3>📋 Course Subjects</h3>
+
+        <div id="subjectList">
+
+            <p>
+                Select a course to view subjects.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="footer-content">
+
+        <h2>
+            SURYA COMPUTER OF EDUCATION CENTER
+        </h2>
+
+        <p>
+            Kamalpur, Chandauli, Uttar Pradesh
+        </p>
+
+        <p>
+            📞 <a href="tel:+917084275870">7084275870</a>
+        </p>
+
+        <p>
+            © 2026 SURYA COMPUTER OF EDUCATION CENTER
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+
+const SURYA_DATABASE_API =
+    window.SURYA_DATABASE_API;
+
+
+let allCourses = [];
+let allCourseSubjects = [];
+
+
+/* ==================================================
+   GET ADMIN TOKEN
+================================================== */
+
+function getAdminToken() {
+
+    return String(
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        ) || ""
+    ).trim();
+
+}
+
+
+/* ==================================================
+   COURSE MANAGEMENT
+================================================== */
+
+function courseField_(id) {
+    const el = document.getElementById(id);
+    return el ? String(el.value ?? "").trim() : "";
+}
+
+function courseMoney_(id, optional) {
+    const raw = courseField_(id).replace(/[₹,\s]/g, "");
+    if (raw === "") return optional ? 0 : null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+async function saveCourse() {
+    const token = getAdminToken();
+    const courseId = courseField_("courseId");
+    const courseName = courseField_("courseName");
+    const duration = courseField_("courseDuration");
+    const fee = courseMoney_("courseFee");
+    const fullPaymentDiscount = courseMoney_("fullPaymentDiscount", true);
+    const admissionFee = courseMoney_("admissionFee", true);
+    const description = courseField_("courseDescription");
+    const status = courseField_("courseStatus") || "Active";
+    const message = document.getElementById("courseMessage");
+
+    if (!courseId || !courseName || !duration || fee === null) {
+        message.textContent = "⚠️ Course ID, Name, Duration and a valid Fee are required.";
+        return;
+    }
+
+    if (fullPaymentDiscount > fee || admissionFee > fee) {
+        message.textContent = "⚠️ Discount/Admission Fee cannot be greater than Course Fee.";
+        return;
+    }
+
+    if (!token) {
+        message.textContent = "❌ Admin session expired. Please login again.";
+        return;
+    }
+
+    const editing = !!courseField_("courseEditId");
+    const action = editing ? "updateCourse" : "addCourse";
+
+    try {
+        const response = await fetch(SURYA_DATABASE_API,{
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({
+                action, token, courseId, courseName, duration,
+                fee, fullPaymentDiscount:fullPaymentDiscount ?? 0,
+                admissionFee:admissionFee ?? 0, description, status
+            })
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || "Course save failed.");
+
+        message.textContent = "✅ " + (result.message || "Course saved.");
+        clearCourseForm();
+        await loadAllCourseSubjects();
+        renderCourseList();
+    } catch(error) {
+        message.textContent = "❌ " + error.message;
+    }
+}
+
+function clearCourseForm() {
+    ["courseEditId","courseId","courseName","courseDuration","courseFee","fullPaymentDiscount","admissionFee","courseDescription"].forEach(function(id){
+        document.getElementById(id).value = "";
+    });
+    document.getElementById("courseStatus").value = "Active";
+}
+
+function editCourse(course) {
+    document.getElementById("courseEditId").value = course["Course ID"] || course.courseId || "";
+    document.getElementById("courseId").value = course["Course ID"] || course.courseId || "";
+    document.getElementById("courseName").value = course["Course Name"] || course.courseName || "";
+    document.getElementById("courseDuration").value = course["Duration"] || course.duration || "";
+    document.getElementById("courseFee").value = course["Fee"] ?? course.fee ?? "";
+    document.getElementById("fullPaymentDiscount").value = course["Full Payment Discount"] ?? course.fullPaymentDiscount ?? 0;
+    document.getElementById("admissionFee").value = course["Admission Fee"] ?? course.admissionFee ?? 0;
+    document.getElementById("courseDescription").value = course["Description"] || course.description || "";
+    document.getElementById("courseStatus").value = course["Status"] || course.status || "Active";
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function changeCourseStatus(courseId,status) {
+    try {
+        const action = status === "Active" ? "enableCourse" : "disableCourse";
+        const result = await (await fetch(SURYA_DATABASE_API,{
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({action,token:getAdminToken(),courseId})
+        })).json();
+        if (!result.success) throw new Error(result.message || "Status update failed.");
+        await loadAllCourseSubjects();
+        renderCourseList();
+    } catch(error) {
+        alert("❌ " + error.message);
+    }
+}
+
+function renderCourseList() {
+    const box = document.getElementById("courseList");
+    if (!box) return;
+
+    if (!allCourses.length) {
+        box.innerHTML = "<p>📭 No courses found.</p>";
+        return;
+    }
+
+    box.innerHTML = allCourses.map(function(course){
+        const id = course["Course ID"] || course.courseId || "";
+        const name = course["Course Name"] || course.courseName || "";
+        const duration = course["Duration"] || course.duration || "";
+        const fee = course["Fee"] ?? course.fee ?? 0;
+        const discount = course["Full Payment Discount"] ?? course.fullPaymentDiscount ?? 0;
+        const admissionFee = course["Admission Fee"] ?? course.admissionFee ?? 0;
+        const description = course["Description"] || course.description || "";
+        const status = course["Status"] || course.status || "Active";
+
+        return `<div class="course-record">
+            <div>
+                <strong>📚 ${escapeHTML(name)}</strong>
+                <div>🆔 ${escapeHTML(id)} • ⏱ ${escapeHTML(duration)} • 💰 ₹${escapeHTML(fee)}</div>
+                <div>🎁 Full-payment discount: ₹${escapeHTML(discount)} • 🧾 Admission Fee: ₹${escapeHTML(admissionFee)}</div>
+                <div>${escapeHTML(description)}</div>
+                <b>${escapeHTML(status)}</b>
+            </div>
+            <div class="actions">
+                <button type="button" onclick='editCourse(${JSON.stringify(course)})'>✏️ Edit</button>
+                <button type="button" onclick='changeCourseStatus("${escapeAttribute(id)}","${status === "Active" ? "Inactive" : "Active"}")'>
+                    ${status === "Active" ? "🚫 Disable" : "🟢 Enable"}
+                </button>
+            </div>
+        </div>`;
+    }).join("");
+}
+
+
+/* ==================================================
+   LOAD COURSE SUBJECTS
+================================================== */
+
+async function loadAllCourseSubjects() {
+
+    const token =
+        getAdminToken();
+
+    if (!token) {
+
+        alert(
+            "❌ Admin session expired. Please login again."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /* =========================================
+           LOAD COURSES
+        ========================================= */
+
+        const coursesResponse =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=courses" +
+                "&token=" +
+                encodeURIComponent(token)
+            );
+
+
+        const coursesResult =
+            await coursesResponse.json();
+
+
+        if (
+            !coursesResult.success
+        ) {
+
+            alert(
+                coursesResult.message ||
+                "Failed to load courses."
+            );
+
+            return;
+
+        }
+
+
+        allCourses =
+            Array.isArray(
+                coursesResult.courses
+            )
+                ? coursesResult.courses
+                : [];
+
+        renderCourseList();
+
+        /* =========================================
+           LOAD COURSE SUBJECTS
+        ========================================= */
+
+        const subjectsResponse =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=courseSubjects" +
+                "&token=" +
+                encodeURIComponent(token)
+            );
+
+
+        const subjectsResult =
+            await subjectsResponse.json();
+
+
+        if (
+            !subjectsResult.success
+        ) {
+
+            alert(
+                subjectsResult.message ||
+                "Failed to load course subjects."
+            );
+
+            return;
+
+        }
+
+
+        allCourseSubjects =
+            Array.isArray(
+                subjectsResult.subjects
+            )
+                ? subjectsResult.subjects
+                : [];
+
+
+        populateCourseDropdown();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "COURSE AND SUBJECT LOAD ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Unable to connect to database."
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   POPULATE COURSE DROPDOWN
+
+================================================== */
+
+function populateCourseDropdown() {
+
+    const select =
+        document.getElementById(
+            "courseSelect"
+        );
+
+
+    if (!select) return;
+
+
+    const courses =
+        [
+            ...new Set(
+                allCourses
+                    .filter(function(item){
+                        return String(item["Status"] || item.status || "Active").trim().toLowerCase() === "active";
+                    })
+                    .map(
+                        item =>
+                            String(
+                                item["Course ID"] ||
+                                item.courseId ||
+                                ""
+                            ).trim()
+                    )
+                    .filter(Boolean)
+            )
+        ];
+
+
+    select.innerHTML = `
+        <option value="">
+            -- Select Course --
+        </option>
+    `;
+
+
+    courses.forEach(
+        function(course) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                course;
+
+
+            option.textContent =
+                course;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   LOAD SELECTED COURSE SUBJECTS
+================================================== */
+
+function loadCourseSubjects() {
+
+    const course =
+        document
+            .getElementById(
+                "courseSelect"
+            )
+            .value;
+
+
+    const list =
+        document.getElementById(
+            "subjectList"
+        );
+
+
+    if (!course) {
+
+        list.innerHTML = `
+            <p>
+                ⚠️ Please select a course.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    const subjects =
+        allCourseSubjects.filter(
+            function(item) {
+
+                const itemCourse =
+                    String(
+                        item.Course ||
+                        item.course ||
+                        ""
+                    ).trim();
+
+
+                return (
+                    itemCourse
+                        .toUpperCase() ===
+                    course
+                        .toUpperCase()
+                );
+
+            }
+        );
+
+
+    renderSubjects(
+        subjects
+    );
+
+}
+
+
+/* ==================================================
+   RENDER SUBJECTS
+================================================== */
+
+function renderSubjects(
+    subjects
+) {
+
+    const list =
+        document.getElementById(
+            "subjectList"
+        );
+
+
+    if (
+        !subjects.length
+    ) {
+
+        list.innerHTML = `
+            <p>
+                📭 No subjects found for this course.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    list.innerHTML = "";
+
+
+    subjects.forEach(
+        function(subject) {
+
+            const subjectId =
+                subject["Subject ID"] ||
+                subject.subjectId ||
+                "";
+
+
+            const subjectName =
+                subject["Subject Name"] ||
+                subject.subjectName ||
+                "";
+
+
+            const maxMarks =
+                subject["Max Marks"] ||
+                subject.maxMarks ||
+                100;
+
+
+            const passMarks =
+                subject["Pass Marks"] ||
+                subject.passMarks ||
+                33;
+
+
+            const status =
+                subject.Status ||
+                subject.status ||
+                "Active";
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "admin-course-card";
+
+
+            card.innerHTML = `
+
+                <div>
+
+                    <h4>
+                        📖 ${escapeHTML(
+                            subjectName
+                        )}
+                    </h4>
+
+                    <p>
+                        <strong>Subject ID:</strong>
+                        ${escapeHTML(
+                            subjectId
+                        )}
+                    </p>
+
+                    <p>
+                        <strong>Max Marks:</strong>
+                        ${maxMarks}
+                    </p>
+
+                    <p>
+                        <strong>Pass Marks:</strong>
+                        ${passMarks}
+                    </p>
+
+                    <span class="course-active">
+
+                        ${escapeHTML(
+                            status
+                        )}
+
+                    </span>
+
+                </div>
+
+
+                <div class="course-actions">
+
+                    <button
+                        type="button"
+                        onclick='editSubject(
+                            ${JSON.stringify(
+                                subject
+                            )}
+                        )'
+                    >
+                        ✏️ Edit
+                    </button>
+
+
+                    ${
+                        String(status).toLowerCase() === "inactive"
+                        ?
+                        `<button
+                            type="button"
+                            onclick='enableSubject(
+                                "${escapeAttribute(
+                                    subjectId
+                                )}"
+                            )'
+                        >
+                            🟢 Enable
+                        </button>`
+                        :
+                        `<button
+                            type="button"
+                            onclick='disableSubject(
+                                "${escapeAttribute(
+                                    subjectId
+                                )}"
+                            )'
+                        >
+                            🚫 Disable
+                        </button>`
+                    }
+
+                </div>
+
+            `;
+
+
+            list.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   ADD SUBJECT
+================================================== */
+
+async function addSubject() {
+
+    const course =
+        document
+            .getElementById(
+                "courseSelect"
+            )
+            .value
+            .trim();
+
+
+    const subjectId =
+        document
+            .getElementById(
+                "subjectId"
+            )
+            .value
+            .trim();
+
+
+    const subjectName =
+        document
+            .getElementById(
+                "subjectName"
+            )
+            .value
+            .trim();
+
+
+    const maxMarks =
+        document
+            .getElementById(
+                "maxMarks"
+            )
+            .value;
+
+
+    const passMarks =
+        document
+            .getElementById(
+                "passMarks"
+            )
+            .value;
+
+
+    if (
+        !course ||
+        !subjectId ||
+        !subjectName
+    ) {
+
+        alert(
+            "⚠️ Course, Subject ID and Subject Name are required."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        Number(maxMarks) <= 0 ||
+        Number(passMarks) < 0 ||
+        Number(passMarks) >
+        Number(maxMarks)
+    ) {
+
+        alert(
+            "⚠️ Please enter valid marks."
+        );
+
+        return;
+
+    }
+
+
+    const token =
+        getAdminToken();
+
+
+    if (!token) {
+
+        alert(
+            "❌ Admin session expired."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "addCourseSubject",
+
+                            token:
+                                token,
+
+                            course:
+                                course,
+
+                            subjectId:
+                                subjectId,
+
+                            subjectName:
+                                subjectName,
+
+                            maxMarks:
+                                maxMarks,
+
+                            passMarks:
+                                passMarks
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            alert(
+                "❌ " +
+                (
+                    result.message ||
+                    "Subject could not be added."
+                )
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ Subject added successfully."
+        );
+
+
+        document
+            .getElementById(
+                "subjectId"
+            )
+            .value = "";
+
+
+        document
+            .getElementById(
+                "subjectName"
+            )
+            .value = "";
+
+
+        await loadAllCourseSubjects();
+
+        loadCourseSubjects();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ADD SUBJECT ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Unable to save subject."
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   EDIT SUBJECT
+================================================== */
+
+async function editSubject(
+    subject
+) {
+
+    const course =
+        String(
+            subject.Course ||
+            subject.course ||
+            ""
+        ).trim();
+
+
+    const subjectId =
+        String(
+            subject["Subject ID"] ||
+            subject.subjectId ||
+            ""
+        ).trim();
+
+
+    const oldName =
+        String(
+            subject["Subject Name"] ||
+            subject.subjectName ||
+            ""
+        );
+
+
+    const oldMax =
+        Number(
+            subject["Max Marks"] ||
+            subject.maxMarks ||
+            100
+        );
+
+
+    const oldPass =
+        Number(
+            subject["Pass Marks"] ||
+            subject.passMarks ||
+            33
+        );
+
+
+    const subjectName =
+        prompt(
+            "Subject Name:",
+            oldName
+        );
+
+
+    if (
+        subjectName === null
+    ) return;
+
+
+    const maxMarks =
+        prompt(
+            "Max Marks:",
+            oldMax
+        );
+
+
+    if (
+        maxMarks === null
+    ) return;
+
+
+    const passMarks =
+        prompt(
+            "Pass Marks:",
+            oldPass
+        );
+
+
+    if (
+        passMarks === null
+    ) return;
+
+
+    if (
+        !subjectName.trim() ||
+        Number(maxMarks) <= 0 ||
+        Number(passMarks) < 0 ||
+        Number(passMarks) >
+        Number(maxMarks)
+    ) {
+
+        alert(
+            "⚠️ Invalid subject details."
+        );
+
+        return;
+
+    }
+
+
+    const token =
+        getAdminToken();
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "updateCourseSubject",
+
+                            token:
+                                token,
+
+                            subjectId:
+                                subjectId,
+
+                            course:
+                                course,
+
+                            subjectName:
+                                subjectName.trim(),
+
+                            maxMarks:
+                                maxMarks,
+
+                            passMarks:
+                                passMarks,
+
+                            status:
+                                subject.Status ||
+                                subject.status ||
+                                "Active"
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            alert(
+                "❌ " +
+                (
+                    result.message ||
+                    "Update failed."
+                )
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ Subject updated successfully."
+        );
+
+
+        await loadAllCourseSubjects();
+
+        loadCourseSubjects();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "UPDATE SUBJECT ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Unable to update subject."
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   DISABLE SUBJECT
+================================================== */
+
+async function disableSubject(
+    subjectId
+) {
+
+    if (
+        !confirm(
+            "Are you sure you want to disable this subject?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const token =
+        getAdminToken();
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "disableCourseSubject",
+
+                            token:
+                                token,
+
+                            subjectId:
+                                subjectId
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            alert(
+                "❌ " +
+                (
+                    result.message ||
+                    "Disable failed."
+                )
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ Subject disabled successfully."
+        );
+
+
+        await loadAllCourseSubjects();
+
+        loadCourseSubjects();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "DISABLE SUBJECT ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Unable to disable subject."
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   ENABLE SUBJECT
+================================================== */
+
+async function enableSubject(
+    subjectId
+) {
+
+    if (
+        !confirm(
+            "Are you sure you want to enable this subject?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const token =
+        getAdminToken();
+
+
+    if (!token) {
+
+        alert(
+            "❌ Admin session expired."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            action:
+                                "enableCourseSubject",
+
+                            token:
+                                token,
+
+                            subjectId:
+                                subjectId
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success
+        ) {
+
+            alert(
+                "❌ " +
+                (
+                    result.message ||
+                    "Enable failed."
+                )
+            );
+
+            return;
+
+        }
+
+
+        alert(
+            "✅ Subject enabled successfully."
+        );
+
+
+        await loadAllCourseSubjects();
+
+        loadCourseSubjects();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ENABLE SUBJECT ERROR:",
+            error
+        );
+
+
+        alert(
+            "❌ Unable to enable subject."
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   HTML SAFETY
+================================================== */
+
+
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(
+    value
+) {
+
+    return String(
+        value
+    )
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /"/g,
+            '\\"'
+        );
+
+}
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadAllCourseSubjects();
+
+    }
+);
+
+              </script>
+
+
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

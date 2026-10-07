@@ -1,0 +1,418 @@
+<!--
+==================================================
+Project : SURYA COMPUTER OF EDUCATION CENTER
+File    : certificate.html
+Version : v1.0.0
+Author  : Devendra Kumar
+Guide   : AERON
+Created : 08-08-2026
+==================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<title>Certificate Verification | Surya Computer Of Education Center</title>
+    <meta name="description" content="Verify certificates issued by SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli, Uttar Pradesh.">
+    <meta name="keywords" content="Surya Computer certificate, certificate verification Kamalpur, Chandauli">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://suryacomputer-education.github.io/certificate.html">
+    <meta property="og:title" content="Certificate Verification | Surya Computer">
+    <meta property="og:description" content="Verify certificates issued by SURYA COMPUTER OF EDUCATION CENTER, Kamalpur, Chandauli, Uttar Pradesh.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suryacomputer-education.github.io/certificate.html">
+    <meta property="og:image" content="assets/images/favicon-512.png">
+
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+    <link rel="stylesheet" href="AERON/css/aeron.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="top-bar">
+    📞 <a href="tel:+917084275870">7084275870</a> |
+    ✉️ <a href="mailto:sunilkumar5757kp@gmail.com">sunilkumar5757kp@gmail.com</a>
+</div>
+
+<!-- HEADER -->
+
+<header class="header">
+
+    <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+    <div class="title">
+        <h1>SURYA COMPUTER OF EDUCATION CENTER</h1>
+        <p>Kamalpur, Chandauli, Uttar Pradesh</p>
+    </div>
+
+</header>
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="courses.html">Courses</a>
+            <a href="digital-library.html">Digital Library</a>
+    <a href="admission.html">Admission</a>
+    <a href="result.html">Result</a>
+    <a href="certificate.html">Certificate</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+
+</nav>
+
+<!-- CERTIFICATE VERIFICATION -->
+
+<section class="certificate-section">
+
+    <h2>Certificate Verification</h2>
+
+    <p>
+        Enter your Certificate ID to verify your certificate.
+    </p>
+
+    <form class="certificate-form">
+
+        <input
+            type="text"
+            id="certificateId"
+            placeholder="Enter Certificate ID"
+            required
+        >
+
+        <button type="submit">
+            🔍 Verify Certificate
+        </button>
+
+    </form>
+
+    <div id="certificateResult"></div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 Surya Computer Of Education Center |
+        All Rights Reserved.
+    </p>
+
+</footer>
+<script>
+
+const CERTIFICATE_API =
+    window.SURYA_DATABASE_API;
+
+
+const certificateForm =
+    document.querySelector(".certificate-form");
+
+const certificateResult =
+    document.getElementById("certificateResult");
+
+
+
+
+certificateForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const certificateId =
+            document
+                .getElementById("certificateId")
+                .value
+                .trim()
+                .toUpperCase();
+
+
+        if (!certificateId) {
+
+            certificateResult.innerHTML = `
+                <div class="certificate-card">
+                    <h3>Please enter Certificate ID.</h3>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        certificateResult.innerHTML = `
+            <div class="certificate-card">
+                <h3>🔄 Verifying Certificate...</h3>
+                <p>Please wait...</p>
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    CERTIFICATE_API +
+                    "?action=certificate&id=" +
+                    encodeURIComponent(certificateId)
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !data.success ||
+                !data.certificate
+            ) {
+
+                certificateResult.innerHTML = `
+                    <div class="certificate-card">
+                        <h3>❌ Certificate Not Found</h3>
+
+                        <p>
+                            ${data.message || "Certificate could not be verified."}
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            const certificate =
+                data.certificate;
+
+
+            const certificateStatus =
+                String(certificate["Status"])
+                    .trim()
+                    .toLowerCase();
+
+            /* =========================================
+               FIX: backend (Certificates.gs getCertificate)
+               only ever rejects "Inactive" certificates —
+               it treats "Active" as a normal, valid status.
+               This frontend check used to require the exact
+               literal "Verified" (a leftover from the old
+               local-demo dataset), so real certificates
+               created with Status="Active" were wrongly
+               shown as "Not Verified" even though the
+               backend had already approved and returned
+               them. Now this mirrors the backend: only
+               "Inactive" / "Disabled" are rejected; both
+               "Active" and "Verified" are accepted.
+            ========================================= */
+            if (
+                certificateStatus === "inactive" ||
+                certificateStatus === "disabled"
+            ) {
+
+                certificateResult.innerHTML = `
+                    <div class="certificate-card">
+                        <h3>⚠️ Certificate Not Verified</h3>
+
+                        <p>
+                            This certificate is not currently verified.
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            certificateResult.innerHTML = `
+
+                <div class="certificate-card">
+
+                    <h2>
+                        ✅ Certificate Verified
+                    </h2>
+
+                    <p>
+                        <strong>Student Name:</strong>
+                        ${certificate["Student Name"]}
+                    </p>
+
+                    <p>
+                        <strong>Father Name:</strong>
+                        ${certificate["Father Name"]}
+                    </p>
+
+                    <p>
+                        <strong>Certificate ID:</strong>
+                        ${certificate["Certificate ID"]}
+                    </p>
+
+                    <p>
+                        <strong>Student ID:</strong>
+                        ${certificate["Student ID"]}
+                    </p>
+
+                    <p>
+                        <strong>Course:</strong>
+                        ${certificate["Course"]}
+                    </p>
+
+                    <p>
+                        <strong>Total Marks:</strong>
+                        ${certificate["Total Marks"]}
+                    </p>
+
+                    <p>
+                        <strong>Obtained Marks:</strong>
+                        ${certificate["Obtained Marks"]}
+                    </p>
+
+                    <p>
+                        <strong>Percentage:</strong>
+                        ${certificate["Percentage"]}%
+                    </p>
+
+                    <p>
+                        <strong>Grade:</strong>
+                        ${certificate["Grade"]}
+                    </p>
+
+                    <p>
+                        <strong>Result:</strong>
+                        ${certificate["Final Result"] || certificate["Result"] || ""}
+                    </p>
+
+                    <p>
+                        <strong>Issue Date:</strong>
+                        ${(() => {
+                            const d = new Date(certificate["Issue Date"]);
+                            if (isNaN(d.getTime())) return certificate["Issue Date"];
+                            return d.toLocaleString("en-IN", {
+                                timeZone: "Asia/Kolkata",
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                            });
+                        })()}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${certificate["Status"]}
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "CERTIFICATE API ERROR:",
+                error
+            );
+
+
+            certificateResult.innerHTML = `
+                <div class="certificate-card">
+
+                    <h3>
+                        ⚠️ Verification Service Error
+                    </h3>
+
+                    <p>
+                        Internet connection or server problem.
+                        Please try again.
+                    </p>
+
+                </div>
+            `;
+
+        }
+
+    }
+);
+
+  /* ==================================================
+   QR CODE AUTO VERIFICATION
+   Reads Certificate ID from:
+   certificate.html?id=SC-CERT-XXXX
+================================================== */
+
+const qrCertificateId =
+    new URLSearchParams(
+        window.location.search
+    ).get("id");
+
+
+if (qrCertificateId) {
+
+    const cleanCertificateId =
+        qrCertificateId
+            .trim()
+            .toUpperCase();
+
+
+    if (cleanCertificateId) {
+
+        const certificateInput =
+            document.getElementById(
+                "certificateId"
+            );
+
+
+        certificateInput.value =
+            cleanCertificateId;
+
+
+        /*
+         * Submit handler is already attached above,
+         * so requestSubmit() will now trigger the
+         * normal certificate verification flow.
+         */
+
+        certificateForm.requestSubmit();
+
+    }
+
+}
+
+</script>
+
+    <script src="assets/js/project-ui.js"></script>
+
+    <script src="AERON/config/aeron-config.js"></script>
+    <script src="AERON/js/aeron-tts.js" defer></script>
+    <script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+</html>

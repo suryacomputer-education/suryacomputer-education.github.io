@@ -1,0 +1,2648 @@
+<!--
+==================================================
+Project  : SURYA COMPUTER OF EDUCATION CENTER
+File     : certificate-print.html
+Version  : v5.0.0
+Author   : Sunil Kumar
+Developer: Devendra Kumar
+Guide    : AERON
+
+Purpose  :
+Professional A4 Certificate
+Dynamic Certificate Front + Back + Subject Marks
+==================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+
+    <!-- Favicon / app icons -->
+    <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/images/favicon-48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Certificate | Surya Computer Of Education Center
+</title>
+
+<script src="assets/js/backend-config.js"></script>
+<script src="assets/js/data-manager.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<style>
+
+/* ==================================================
+   RESET
+================================================== */
+
+* {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    background: #e7e7e7;
+
+    font-family:
+        "Times New Roman",
+        Georgia,
+        serif;
+}
+
+
+/* ==================================================
+   TWO-PAGE CERTIFICATE
+================================================== */
+
+.certificate-page {
+    box-sizing: border-box;
+    page-break-after: always;
+    break-after: page;
+}
+
+.certificate-page:last-of-type {
+    page-break-after: auto;
+    break-after: auto;
+}
+
+.back-page .inner-border {
+    padding: 7mm 8mm;
+    position: relative;
+}
+
+.back-title {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin: 5px 0 3px;
+    position: relative;
+    z-index: 2;
+}
+
+.back-subtitle {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    margin-bottom: 9px;
+    position: relative;
+    z-index: 2;
+}
+
+.back-student-info {
+    width: 94%;
+    margin: 0 auto 9px;
+    border: 1.2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.back-info-item {
+    padding: 5px 7px;
+    border-bottom: 1px solid #aaa;
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(255,255,255,.72);
+}
+
+.back-info-item:nth-child(odd) {
+    border-right: 1px solid #777;
+}
+
+.back-info-wide {
+    grid-column: 1 / -1;
+    border-right: 0 !important;
+    border-bottom: 0;
+}
+
+.back-info-label {
+    display: block;
+    font-size: 7px;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    margin-bottom: 1px;
+    opacity: .72;
+}
+
+.subject-table-wrap {
+    width: 96%;
+    margin: 8px auto;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    border-radius: 7px;
+}
+
+.subject-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: Arial, sans-serif;
+    font-size: 8px;
+}
+
+.subject-table th,
+.subject-table td {
+    border: 1px solid #555;
+    padding: 4px 3px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.15;
+}
+
+.subject-table th {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .25px;
+}
+
+.subject-table th.subject-name,
+.subject-table td.subject-name {
+    text-align: left;
+    width: 25%;
+    min-width: 0;
+}
+
+.back-page .subject-table tbody tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.back-summary {
+    width: 92%;
+    margin: 8px auto;
+    border: 1px solid #777;
+    border-radius: 7px;
+    padding: 6px;
+    position: relative;
+    z-index: 2;
+    font-size: 9px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.back-verification {
+    width: 88%;
+    margin: 8px auto 0;
+    padding: 7px;
+    border: 1px dashed #777;
+    border-radius: 7px;
+    text-align: center;
+    font-size: 8px;
+    line-height: 1.35;
+    position: relative;
+    z-index: 2;
+}
+
+.back-footer {
+    width: 88%;
+    margin: 10px auto 0;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+
+.back-footer-item {
+    width: 42%;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.back-footer-line {
+    border-top: 1px solid #222;
+    margin-bottom: 4px;
+}
+
+.subject-empty {
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed #555;
+    font-size: 11px;
+}
+
+@media print {
+    html,
+    body {
+        background: white;
+    }
+
+    .certificate-page {
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .certificate-page:last-of-type {
+        page-break-after: auto;
+        break-after: auto;
+    }
+}
+
+/* ==================================================
+   PRINT CONTROL
+================================================== */
+
+.print-controls {
+
+    text-align: center;
+
+    padding: 15px;
+
+}
+
+.print-button {
+
+    padding: 12px 28px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #222;
+
+    color: #fff;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+.print-button:hover {
+
+    opacity: 0.85;
+
+}
+
+
+/* ==================================================
+   A4 PAGE
+================================================== */
+
+.certificate-page {
+
+    width: 210mm;
+
+    height: 297mm;
+
+    margin: 0 auto;
+
+    padding: 7mm;
+
+    background: #fff;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+/* ==================================================
+   BORDER
+================================================== */
+
+.outer-border {
+
+    width: 100%;
+
+    height: 100%;
+
+    position: relative;
+
+    box-sizing: border-box;
+
+    padding: 14px;
+
+    border-style: solid;
+
+    border-width: 15px;
+
+    border-image-slice: 1;
+
+    border-image-repeat: stretch;
+
+    border-image-source:
+        linear-gradient(
+            135deg,
+            #fbfbfb 0%,
+            #c9c9c9 14%,
+            #ffffff 27%,
+            #868686 42%,
+            #ffffff 57%,
+            #aeaeae 72%,
+            #f4f4f4 86%,
+            #d2d2d2 100%
+        );
+
+    box-shadow:
+        0 0 0 1px #6f6f6f,
+        0 2px 6px rgba(0,0,0,.25);
+
+}
+
+.outer-border::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+
+    border: 3px solid #1c3f6e;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.5),
+        0 0 0 1px rgba(255,255,255,.4);
+
+    pointer-events: none;
+
+    z-index: 1;
+
+}
+
+.inner-border {
+
+    width: 100%;
+
+    height: 100%;
+
+    background-color: #fdfbf5;
+
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat,
+        no-repeat;
+
+    background-position:
+        top -10px left -10px,
+        top -10px right -10px,
+        bottom -10px left -10px,
+        bottom -10px right -10px,
+        center 38%,
+        right -10px center;
+
+    background-size:
+        190px 190px,
+        190px 190px,
+        190px 190px,
+        190px 190px,
+        620px 620px,
+        260px 900px;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C40%20H60%20V90%20H120%22/%3E%3Cpath%20d%3D%22M0%2C90%20H30%20V130%22/%3E%3Cpath%20d%3D%22M40%2C0%20V50%20H100%20V100%22/%3E%3Cpath%20d%3D%22M90%2C0%20V30%20H150%22/%3E%3Cpath%20d%3D%22M0%2C140%20H50%22/%3E%3Cpath%20d%3D%22M120%2C90%20H170%20V140%22/%3E%3Cpath%20d%3D%22M150%2C30%20H190%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20fill%3D%22%238a7a5c%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22130%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22100%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22140%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%22140%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%2240%22%20width%3D%2226%22%20height%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22/%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2277%22%20y%3D%2247%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%238a7a5c%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cg%20transform%3D%22scale%28-1%2C1%29%20translate%28-200%2C0%29%22%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C40%20H60%20V90%20H120%22/%3E%3Cpath%20d%3D%22M0%2C90%20H30%20V130%22/%3E%3Cpath%20d%3D%22M40%2C0%20V50%20H100%20V100%22/%3E%3Cpath%20d%3D%22M90%2C0%20V30%20H150%22/%3E%3Cpath%20d%3D%22M0%2C140%20H50%22/%3E%3Cpath%20d%3D%22M120%2C90%20H170%20V140%22/%3E%3Cpath%20d%3D%22M150%2C30%20H190%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20fill%3D%22%238a7a5c%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22130%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22100%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22140%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%22140%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%2240%22%20width%3D%2226%22%20height%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22/%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2277%22%20y%3D%2247%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%238a7a5c%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cg%20transform%3D%22scale%281%2C-1%29%20translate%280%2C-200%29%22%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C40%20H60%20V90%20H120%22/%3E%3Cpath%20d%3D%22M0%2C90%20H30%20V130%22/%3E%3Cpath%20d%3D%22M40%2C0%20V50%20H100%20V100%22/%3E%3Cpath%20d%3D%22M90%2C0%20V30%20H150%22/%3E%3Cpath%20d%3D%22M0%2C140%20H50%22/%3E%3Cpath%20d%3D%22M120%2C90%20H170%20V140%22/%3E%3Cpath%20d%3D%22M150%2C30%20H190%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20fill%3D%22%238a7a5c%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22130%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22100%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22140%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%22140%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%2240%22%20width%3D%2226%22%20height%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22/%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2277%22%20y%3D%2247%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%238a7a5c%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Cg%20transform%3D%22scale%28-1%2C-1%29%20translate%28-200%2C-200%29%22%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M0%2C40%20H60%20V90%20H120%22/%3E%3Cpath%20d%3D%22M0%2C90%20H30%20V130%22/%3E%3Cpath%20d%3D%22M40%2C0%20V50%20H100%20V100%22/%3E%3Cpath%20d%3D%22M90%2C0%20V30%20H150%22/%3E%3Cpath%20d%3D%22M0%2C140%20H50%22/%3E%3Cpath%20d%3D%22M120%2C90%20H170%20V140%22/%3E%3Cpath%20d%3D%22M150%2C30%20H190%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20fill%3D%22%238a7a5c%22%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2260%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%2290%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22130%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22100%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22140%22%20r%3D%223%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%22140%22%20r%3D%222.5%22/%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%2230%22%20r%3D%222.5%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cg%20opacity%3D%220.32%22%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%2240%22%20width%3D%2226%22%20height%3D%2226%22%20fill%3D%22none%22%20stroke%3D%22%238a7a5c%22%20stroke-width%3D%222%22/%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2277%22%20y%3D%2247%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%238a7a5c%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20600%20600%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%3CradialGradient%20id%3D%22fade%22%20cx%3D%2250%25%22%20cy%3D%2250%25%22%20r%3D%2250%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22white%22%20stop-opacity%3D%220.9%22/%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%2255%25%22%20stop-color%3D%22white%22%20stop-opacity%3D%220.3%22/%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22white%22%20stop-opacity%3D%220%22/%3E%0A%20%20%20%20%20%20%20%20%3C/radialGradient%3E%0A%20%20%20%20%20%20%20%20%3Cmask%20id%3D%22m%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22300%22%20r%3D%22300%22%20fill%3D%22url%28%23fade%29%22/%3E%0A%20%20%20%20%20%20%20%20%3C/mask%3E%0A%20%20%20%20%3C/defs%3E%0A%20%20%20%20%3Cg%20mask%3D%22url%28%23m%29%22%20opacity%3D%220.16%22%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M300%2C300%20L600.0%2C300.0%20A300%2C300%200%200%2C1%20599.1%2C323.5%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L596.3%2C346.9%20A300%2C300%200%200%2C1%20591.7%2C370.0%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L585.3%2C392.7%20A300%2C300%200%200%2C1%20577.2%2C414.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L567.3%2C436.2%20A300%2C300%200%200%2C1%20555.8%2C456.7%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L542.7%2C476.3%20A300%2C300%200%200%2C1%20528.1%2C494.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L512.1%2C512.1%20A300%2C300%200%200%2C1%20494.8%2C528.1%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L476.3%2C542.7%20A300%2C300%200%200%2C1%20456.7%2C555.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L436.2%2C567.3%20A300%2C300%200%200%2C1%20414.8%2C577.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L392.7%2C585.3%20A300%2C300%200%200%2C1%20370.0%2C591.7%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L346.9%2C596.3%20A300%2C300%200%200%2C1%20323.5%2C599.1%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L300.0%2C600.0%20A300%2C300%200%200%2C1%20276.5%2C599.1%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L253.1%2C596.3%20A300%2C300%200%200%2C1%20230.0%2C591.7%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L207.3%2C585.3%20A300%2C300%200%200%2C1%20185.2%2C577.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L163.8%2C567.3%20A300%2C300%200%200%2C1%20143.3%2C555.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L123.7%2C542.7%20A300%2C300%200%200%2C1%20105.2%2C528.1%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L87.9%2C512.1%20A300%2C300%200%200%2C1%2071.9%2C494.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L57.3%2C476.3%20A300%2C300%200%200%2C1%2044.2%2C456.7%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L32.7%2C436.2%20A300%2C300%200%200%2C1%2022.8%2C414.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L14.7%2C392.7%20A300%2C300%200%200%2C1%208.3%2C370.0%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L3.7%2C346.9%20A300%2C300%200%200%2C1%200.9%2C323.5%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L0.0%2C300.0%20A300%2C300%200%200%2C1%200.9%2C276.5%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L3.7%2C253.1%20A300%2C300%200%200%2C1%208.3%2C230.0%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L14.7%2C207.3%20A300%2C300%200%200%2C1%2022.8%2C185.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L32.7%2C163.8%20A300%2C300%200%200%2C1%2044.2%2C143.3%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L57.3%2C123.7%20A300%2C300%200%200%2C1%2071.9%2C105.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L87.9%2C87.9%20A300%2C300%200%200%2C1%20105.2%2C71.9%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L123.7%2C57.3%20A300%2C300%200%200%2C1%20143.3%2C44.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L163.8%2C32.7%20A300%2C300%200%200%2C1%20185.2%2C22.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L207.3%2C14.7%20A300%2C300%200%200%2C1%20230.0%2C8.3%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L253.1%2C3.7%20A300%2C300%200%200%2C1%20276.5%2C0.9%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L300.0%2C0.0%20A300%2C300%200%200%2C1%20323.5%2C0.9%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L346.9%2C3.7%20A300%2C300%200%200%2C1%20370.0%2C8.3%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L392.7%2C14.7%20A300%2C300%200%200%2C1%20414.8%2C22.8%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L436.2%2C32.7%20A300%2C300%200%200%2C1%20456.7%2C44.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L476.3%2C57.3%20A300%2C300%200%200%2C1%20494.8%2C71.9%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L512.1%2C87.9%20A300%2C300%200%200%2C1%20528.1%2C105.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L542.7%2C123.7%20A300%2C300%200%200%2C1%20555.8%2C143.3%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L567.3%2C163.8%20A300%2C300%200%200%2C1%20577.2%2C185.2%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L585.3%2C207.3%20A300%2C300%200%200%2C1%20591.7%2C230.0%20Z%22%20fill%3D%22%23c99a55%22/%3E%3Cpath%20d%3D%22M300%2C300%20L596.3%2C253.1%20A300%2C300%200%200%2C1%20599.1%2C276.5%20Z%22%20fill%3D%22%23c99a55%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20260%20900%22%3E%3Ctext%20x%3D%2288%22%20y%3D%22143%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%2088%20143%29%22%3E%E0%A4%85%3C/text%3E%3Ctext%20x%3D%2233%22%20y%3D%22523%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%2033%20523%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%2231%22%20y%3D%22378%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%2031%20378%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%22112%22%20y%3D%22738%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%20112%20738%29%22%3E%E0%A4%86%3C/text%3E%3Ctext%20x%3D%22161%22%20y%3D%22844%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20161%20844%29%22%3E%E0%A4%B0%3C/text%3E%3Ctext%20x%3D%2222%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%2022%20205%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22111%22%20y%3D%22486%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20111%20486%29%22%3E%E0%A4%B0%3C/text%3E%3Ctext%20x%3D%22206%22%20y%3D%22169%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20206%20169%29%22%3E%E0%A4%B0%3C/text%3E%3Ctext%20x%3D%2255%22%20y%3D%2296%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%2055%2096%29%22%3E%E0%A4%86%3C/text%3E%3Ctext%20x%3D%22159%22%20y%3D%22447%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%20159%20447%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22122%22%20y%3D%22823%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20122%20823%29%22%3E%E0%A4%97%3C/text%3E%3Ctext%20x%3D%22201%22%20y%3D%22625%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%20201%20625%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%2282%22%20y%3D%22446%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2820%2082%20446%29%22%3E%E0%A4%97%3C/text%3E%3Ctext%20x%3D%2279%22%20y%3D%22873%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%2079%20873%29%22%3E%E0%A4%86%3C/text%3E%3Ctext%20x%3D%2250%22%20y%3D%22311%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%2050%20311%29%22%3E%E0%A4%B9%3C/text%3E%3Ctext%20x%3D%22241%22%20y%3D%2278%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20241%2078%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%2292%22%20y%3D%22318%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%2092%20318%29%22%3E%E0%A4%B9%3C/text%3E%3Ctext%20x%3D%2227%22%20y%3D%2292%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%2027%2092%29%22%3E%E0%A4%96%3C/text%3E%3Ctext%20x%3D%22169%22%20y%3D%2263%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2820%20169%2063%29%22%3E%E0%A4%96%3C/text%3E%3Ctext%20x%3D%22248%22%20y%3D%22733%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2820%20248%20733%29%22%3E%E0%A4%96%3C/text%3E%3Ctext%20x%3D%22223%22%20y%3D%22315%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20223%20315%29%22%3E%E0%A4%B9%3C/text%3E%3Ctext%20x%3D%22157%22%20y%3D%22444%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20157%20444%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%22187%22%20y%3D%22360%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%20187%20360%29%22%3E%E0%A4%B9%3C/text%3E%3Ctext%20x%3D%22118%22%20y%3D%22494%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%20118%20494%29%22%3E%E0%A4%87%3C/text%3E%3Ctext%20x%3D%2277%22%20y%3D%22375%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2820%2077%20375%29%22%3E%E0%A4%97%3C/text%3E%3Ctext%20x%3D%22240%22%20y%3D%22143%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%20240%20143%29%22%3E%E0%A4%87%3C/text%3E%3Ctext%20x%3D%22168%22%20y%3D%2221%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%20168%2021%29%22%3E%E0%A4%B0%3C/text%3E%3Ctext%20x%3D%2278%22%20y%3D%22138%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%2078%20138%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22146%22%20y%3D%22849%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20146%20849%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22172%22%20y%3D%2258%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%20172%2058%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22106%22%20y%3D%22101%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%20106%20101%29%22%3E%E0%A4%B8%3C/text%3E%3Ctext%20x%3D%2226%22%20y%3D%22194%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%2026%20194%29%22%3E%E0%A4%87%3C/text%3E%3Ctext%20x%3D%22154%22%20y%3D%22100%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%20154%20100%29%22%3E%E0%A4%B0%3C/text%3E%3Ctext%20x%3D%2234%22%20y%3D%22330%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-20%2034%20330%29%22%3E%E0%A4%85%3C/text%3E%3Ctext%20x%3D%22157%22%20y%3D%22141%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20157%20141%29%22%3E%E0%A4%96%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%22118%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%2097%20118%29%22%3E%E0%A4%B9%3C/text%3E%3Ctext%20x%3D%22126%22%20y%3D%2286%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2820%20126%2086%29%22%3E%E0%A4%86%3C/text%3E%3Ctext%20x%3D%22188%22%20y%3D%22431%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20188%20431%29%22%3E%E0%A4%87%3C/text%3E%3Ctext%20x%3D%2259%22%20y%3D%22848%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%2059%20848%29%22%3E%E0%A4%97%3C/text%3E%3Ctext%20x%3D%22140%22%20y%3D%2234%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20140%2034%29%22%3E%E0%A4%A4%3C/text%3E%3Ctext%20x%3D%22217%22%20y%3D%22623%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20217%20623%29%22%3E%E0%A4%96%3C/text%3E%3Ctext%20x%3D%22228%22%20y%3D%22323%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20228%20323%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%22197%22%20y%3D%22300%22%20font-size%3D%2213%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2815%20197%20300%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%22203%22%20y%3D%22730%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%28-10%20203%20730%29%22%3E%E0%A4%95%3C/text%3E%3Ctext%20x%3D%22128%22%20y%3D%22653%22%20font-size%3D%2215%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%280%20128%20653%29%22%3E%E0%A4%85%3C/text%3E%3Ctext%20x%3D%2272%22%20y%3D%22619%22%20font-size%3D%2217%22%20fill%3D%22%238a7a5c%22%20opacity%3D%220.16%22%20font-family%3D%22Noto%20Sans%20Devanagari%2C%20Arial%2C%20sans-serif%22%20transform%3D%22rotate%2810%2072%20619%29%22%3E%E0%A4%97%3C/text%3E%3C/svg%3E");
+
+    border: 1.5px solid #555;
+
+    padding: 7mm;
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+
+/* ==================================================
+   WATERMARK
+================================================== */
+
+.watermark {
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-35deg);
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    color: rgba(0, 0, 0, 0.045);
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+
+/* ==================================================
+   REGISTRATION
+================================================== */
+
+.registration-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    margin-bottom: 4px;
+
+}
+
+.registration-center {
+
+    text-align: center;
+
+    font-size: 9px;
+
+    margin-bottom: 5px;
+
+}
+
+.certified-line {
+
+    text-align: center;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    margin-bottom: 5px;
+
+}
+
+
+/* ==================================================
+   DIGITAL INDIA LOGO
+================================================== */
+
+.digital-india-msme-oces-logo {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    height: 75px;
+
+    object-fit: contain;
+
+    display: block;
+
+    margin: -8px auto -5px;
+
+}
+
+
+/* ==================================================
+   INSTITUTE HEADER
+================================================== */
+
+.institute-header {
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-top: 5px;
+
+}
+
+.logo {
+
+    width: 105px;
+
+    height: 105px;
+
+    object-fit: contain;
+
+    margin-bottom: 2px;
+
+}
+
+.institute-name {
+
+    font-size: 23px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    margin: 2px 0;
+
+}
+
+.institute-address {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    margin: 2px 0;
+
+}
+
+.header-line {
+
+    width: 75%;
+
+    border-top: 2px solid #222;
+
+    margin: 7px auto;
+
+}
+
+
+/* ==================================================
+   TITLE
+================================================== */
+
+.certificate-heading {
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.certificate-title {
+
+    font-size: 36px;
+
+    font-weight: bold;
+
+    letter-spacing: 5px;
+
+    margin: 4px 0;
+
+}
+
+.certificate-subtitle {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+}
+
+
+/* ==================================================
+   IDENTITY ROW
+================================================== */
+
+.identity-row {
+
+    width: 90%;
+
+    margin: 8px auto;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.identity-box {
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+.iso-logo {
+
+    width: 105px;
+
+    height: 75px;
+
+    object-fit: contain;
+
+}
+
+.student-photo {
+
+    width: 82px;
+
+    height: 100px;
+
+    object-fit: cover;
+
+    border: 2px solid #222;
+
+    background: #fff;
+
+}
+
+.student-signature {
+
+    width: 82px;
+
+    height: 35px;
+
+    object-fit: contain;
+
+    margin-top: 5px;
+
+    border: 1px solid #222;
+
+    background: #fff;
+
+}
+
+.qr-box {
+
+    width: 82px;
+
+    height: 82px;
+
+    border: 2px solid #222;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin: auto;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 9px;
+
+    font-weight: bold;
+
+}
+
+.identity-label {
+
+    font-size: 9px;
+
+    font-weight: bold;
+
+    margin-top: 3px;
+
+}
+
+
+/* ==================================================
+   CONTENT
+================================================== */
+
+.certificate-content {
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 2;
+
+    font-size: 14px;
+
+    line-height: 1.45;
+
+}
+
+.certificate-content p {
+
+    margin: 5px 0;
+
+}
+
+.student-name {
+
+    font-size: 27px;
+
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    border-bottom: 2px solid #222;
+
+    display: inline-block;
+
+    padding: 2px 35px;
+
+    margin: 2px 0;
+
+}
+
+.father-name {
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+}
+
+.atc {
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    margin: 5px 0;
+
+}
+
+.course-name {
+
+    font-size: 21px;
+
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    margin: 4px 0;
+
+}
+
+.course-duration {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+.course-period {
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+
+/* ==================================================
+   RESULT BOX
+================================================== */
+
+.result-box {
+
+    width: 88%;
+
+    margin: 8px auto;
+
+    border-top: 1px solid #333;
+
+    border-bottom: 1px solid #333;
+
+    padding: 6px;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+.result-item {
+
+    min-width: 75px;
+
+    text-align: center;
+
+}
+
+.result-label {
+
+    display: block;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 2px;
+
+}
+
+.result-value {
+
+    font-size: 14px;
+
+}
+
+
+/* ==================================================
+   CERTIFICATE DETAILS
+================================================== */
+
+.certificate-details {
+
+    width: 85%;
+
+    margin: 8px auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    border: 1px solid #555;
+
+    padding: 6px 10px;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+.detail-item {
+
+    text-align: center;
+
+    flex: 1;
+
+}
+
+.detail-label {
+
+    display: block;
+
+    font-size: 8px;
+
+    margin-bottom: 2px;
+
+}
+
+.detail-value {
+
+    font-size: 11px;
+
+}
+
+
+/* ==================================================
+   VERIFICATION
+================================================== */
+
+.verification {
+
+    text-align: center;
+
+    font-size: 9px;
+
+    margin-top: 6px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.verification strong {
+
+    font-size: 10px;
+
+}
+
+
+/* ==================================================
+   SIGNATURE SECTION
+================================================== */
+
+.signature-section {
+
+    width: 85%;
+
+    margin: 8px auto 0;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-end;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.signature {
+
+    width: 160px;
+
+    text-align: center;
+
+}
+
+.signature-space {
+
+    height: 15px;
+
+}
+
+.signature-line {
+
+    border-top: 1px solid #222;
+
+    margin-bottom: 3px;
+
+}
+
+.signature-title {
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+}
+
+
+/* ==================================================
+   CORNERS
+================================================== */
+
+.corner {
+
+    /* the mitred metallic border-image + navy inset line
+       already render the corner join, so these markers
+       are kept only for structural/back-compat purposes */
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 1px;
+
+    pointer-events: none;
+
+}
+
+.corner-tl { top: 0; left: 0; }
+.corner-tr { top: 0; right: 0; }
+.corner-bl { bottom: 0; left: 0; }
+.corner-br { bottom: 0; right: 0; }
+
+
+/* ==================================================
+   LOADING
+================================================== */
+
+.loading {
+
+    text-align: center;
+
+    padding: 20px;
+
+    font-family: Arial, sans-serif;
+
+}
+
+
+/* ==================================================
+   ERROR
+================================================== */
+
+.error-message {
+
+    text-align: center;
+
+    padding: 20px;
+
+    font-family: Arial, sans-serif;
+
+    border: 2px solid #222;
+
+    margin: 20px;
+
+}
+
+
+/* ==================================================
+   PRINT
+================================================== */
+
+@media print {
+
+    @page {
+
+        size: A4 portrait;
+
+        margin: 0;
+
+    }
+
+    html,
+    body {
+
+        width: 210mm;
+
+        height: 297mm;
+
+        margin: 0;
+
+        padding: 0;
+
+        background: #fff;
+
+    }
+
+    .print-controls {
+
+        display: none;
+
+    }
+
+    .certificate-page {
+
+        width: 210mm;
+
+        height: 297mm;
+
+        min-height: 297mm;
+
+        box-sizing: border-box;
+
+        overflow: hidden;
+
+        margin: 0;
+
+        padding: 7mm;
+
+        page-break-after: avoid;
+
+        break-after: avoid-page;
+
+    }
+
+}
+
+/* FINAL PRINT OVERRIDE */
+@media print {
+    .certificate-page {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+    .certificate-page:last-of-type {
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+}
+
+</style>
+
+    <link rel="stylesheet" href="assets/css/project-ui.css">
+
+    <link rel="stylesheet" href="assets/css/dark-mode-fix.css">
+<script src="assets/js/surya-format.js"></script>
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+     PRINT BUTTON
+================================================== -->
+
+<div class="print-controls">
+
+    <button
+        type="button"
+        class="print-button"
+        onclick="window.print()"
+    >
+
+        🖨️ Print Certificate
+
+    </button>
+
+</div>
+
+
+<!-- ==================================================
+     CERTIFICATE
+================================================== -->
+
+<div
+    id="certificateContainer"
+    class="certificate-page"
+>
+
+<div class="outer-border">
+
+<div class="inner-border">
+
+
+<!-- CORNERS -->
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+
+<!-- WATERMARK -->
+
+<div class="watermark">
+
+SURYA COMPUTER OF EDUCATION CENTER
+
+</div>
+
+
+<!-- ==================================================
+     REGISTRATION
+================================================== -->
+
+<div class="registration-row">
+
+<div>
+
+Society Reg. No.:
+<span id="societyRegNo">
+__________
+</span>
+
+</div>
+
+<div>
+
+MSME Reg. No.:
+<span id="msmeRegNo">
+__________
+</span>
+
+</div>
+
+</div>
+
+
+<div class="registration-center">
+
+Registered with Societies Reg. Act 21, 1860...
+
+</div>
+
+
+<div class="certified-line">
+
+An ISO 9001:2015 Certified Organization
+
+</div>
+
+
+<img
+    src="assets/images/digital-india-msme-oces.png"
+    alt="Digital India MSME Oces Logo"
+    class="digital-india-msme-oces-logo"
+>
+
+
+<!-- ==================================================
+     INSTITUTE HEADER
+================================================== -->
+
+<div class="institute-header">
+
+<img
+    src="assets/images/logo.png"
+    alt="Institute Logo"
+    class="logo"
+>
+
+
+<div class="institute-name">
+
+SURYA COMPUTER OF EDUCATION CENTER
+
+</div>
+
+
+<div class="institute-address">
+
+Kamalpur, Chandauli, Uttar Pradesh
+
+</div>
+
+
+<div class="header-line"></div>
+
+</div>
+
+
+<!-- ==================================================
+     TITLE
+================================================== -->
+
+<div class="certificate-heading">
+
+<div class="certificate-title">
+
+CERTIFICATE
+
+</div>
+
+<div class="certificate-subtitle">
+
+OF COURSE COMPLETION
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+     PHOTO / ISO / QR
+================================================== -->
+
+<div class="identity-row">
+
+
+<!-- ISO -->
+
+<div class="identity-box">
+
+<img
+    src="assets/images/iso-logo.png"
+    alt="ISO Logo"
+    class="iso-logo"
+>
+
+<div class="identity-label">
+
+ISO 9001:2015
+
+</div>
+
+</div>
+
+
+<!-- STUDENT -->
+
+<div class="identity-box">
+
+<img
+    id="studentPhoto"
+    src="assets/images/student-placeholder.svg"
+    alt="Student Photo"
+    class="student-photo"
+>
+
+<img
+    id="studentSignature"
+    src="assets/images/signature-placeholder.svg"
+    alt="Student Signature"
+    class="student-signature"
+>
+
+<div class="identity-label">
+
+STUDENT
+
+</div>
+
+</div>
+
+
+<!-- QR -->
+
+<div class="identity-box">
+
+<div
+    id="qrCode"
+    class="qr-box"
+>
+</div>
+
+<div class="identity-label">
+
+VERIFY
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- ==================================================
+     DYNAMIC CONTENT
+================================================== -->
+
+<div
+    id="certificateContent"
+    class="certificate-content"
+>
+
+<div class="loading">
+
+Loading Certificate...
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+     SIGNATURES
+================================================== -->
+
+<div class="signature-section">
+
+<div class="signature">
+
+<div class="signature-space"></div>
+
+<div class="signature-line"></div>
+
+<div class="signature-title">
+
+Controller of Examination
+
+</div>
+
+</div>
+
+
+<div class="signature">
+
+<div class="signature-space"></div>
+
+<div class="signature-line"></div>
+
+<div class="signature-title">
+
+Center Director
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ==================================================
+     CERTIFICATE BACK PAGE
+================================================== -->
+
+<div
+    id="certificateBackPage"
+    class="certificate-page back-page"
+>
+
+<div class="outer-border">
+
+<div class="inner-border">
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="watermark">
+SURYA COMPUTER OF EDUCATION CENTER
+</div>
+
+<div class="institute-header">
+
+<img
+    src="assets/images/logo.png"
+    alt="Institute Logo"
+    class="logo"
+>
+
+<div class="institute-name">
+SURYA COMPUTER OF EDUCATION CENTER
+</div>
+
+<div class="institute-address">
+Kamalpur, Chandauli, Uttar Pradesh
+</div>
+
+<div class="header-line"></div>
+
+</div>
+
+<div class="back-title">
+ACADEMIC RECORD
+</div>
+
+<div class="back-subtitle">
+SUBJECT-WISE MARKS &amp; VERIFICATION DETAILS
+</div>
+
+<div id="backStudentInfo" class="back-student-info">
+
+<div class="back-info-item">
+<span class="back-info-label">Mother Name</span>
+<span id="backMotherName">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Certificate ID</span>
+<span id="backCertificateId">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Student ID</span>
+<span id="backStudentId">—</span>
+</div>
+
+<div class="back-info-item">
+<span class="back-info-label">Course</span>
+<span id="backCourse">—</span>
+</div>
+
+<div class="back-info-item back-info-wide">
+<span class="back-info-label">Examination</span>
+<span id="backExam">—</span>
+</div>
+
+</div>
+
+<div class="subject-table-wrap">
+
+<table class="subject-table">
+<thead>
+<tr>
+<th rowspan="2">S.No.</th>
+<th rowspan="2" class="subject-name">Subject</th>
+<th colspan="2">Theory</th>
+<th colspan="2">Practical</th>
+<th colspan="2">Total</th>
+<th rowspan="2">%</th>
+<th rowspan="2">Grade</th>
+<th rowspan="2">Result</th>
+</tr>
+<tr>
+<th>Max</th>
+<th>Obt.</th>
+<th>Max</th>
+<th>Obt.</th>
+<th>Max</th>
+<th>Obt.</th>
+</tr>
+</thead>
+<tbody id="subjectMarksBody">
+<tr>
+<td colspan="11" class="subject-empty">Loading subject marks...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<div id="backSummary" class="back-summary">
+Loading result summary...
+</div>
+
+<div class="back-verification">
+
+<strong>Certificate Verification</strong>
+<br>
+This certificate can be verified online using the Certificate ID.
+<br>
+<strong>SURYA COMPUTER OF EDUCATION CENTER</strong>
+<br>
+Certificate ID: <strong id="backVerificationCertificateId">—</strong>
+
+</div>
+
+<div class="back-footer">
+
+<div class="back-footer-item">
+<div class="back-footer-line"></div>
+Controller of Examination
+</div>
+
+<div class="back-footer-item">
+<div class="back-footer-line"></div>
+Center Director
+</div>
+
+</div>
+
+</div>
+</div>
+</div>
+
+
+<script>
+
+/* ==================================================
+   DATABASE API
+================================================== */
+
+const SURYA_DATABASE_API =
+window.SURYA_DATABASE_API;
+
+let currentStudent = null;
+let currentCertificate = null;
+
+
+/* ==================================================
+   HTML ESCAPE
+================================================== */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* ==================================================
+   GOOGLE DRIVE FILE ID
+   Supports:
+
+   /file/d/FILE_ID/view
+   ?id=FILE_ID
+   /open?id=FILE_ID
+================================================== */
+
+function extractDriveFileId(url) {
+
+    if (!url) {
+
+        return "";
+
+    }
+
+    const value =
+        String(url).trim();
+
+
+    let match =
+        value.match(
+            /\/file\/d\/([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    match =
+        value.match(
+            /[?&]id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    match =
+        value.match(
+            /\/open\?id=([a-zA-Z0-9_-]+)/i
+        );
+
+    if (match) {
+
+        return match[1];
+
+    }
+
+
+    return "";
+
+}
+
+
+/* ==================================================
+   LOAD DRIVE DOCUMENT
+================================================== */
+
+async function loadStudentDocument(
+    fileUrl,
+    imageElement,
+    action
+) {
+
+    if (!fileUrl || !imageElement) {
+
+        return;
+
+    }
+
+
+    const fileId =
+        extractDriveFileId(
+            fileUrl
+        );
+
+
+    if (!fileId) {
+
+        console.warn(
+            "INVALID DRIVE URL:",
+            fileUrl
+        );
+
+        return;
+
+    }
+
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    if (!adminToken) {
+
+        console.warn(
+            "ADMIN TOKEN NOT FOUND"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API +
+                "?action=" +
+                encodeURIComponent(action) +
+                "&id=" +
+                encodeURIComponent(fileId) +
+                "&token=" +
+                encodeURIComponent(adminToken)
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.success &&
+            result.data
+        ) {
+
+            imageElement.src =
+                "data:" +
+                result.mimeType +
+                ";base64," +
+                result.data;
+
+
+            console.log(
+                action.toUpperCase() +
+                " LOADED SUCCESSFULLY"
+            );
+
+        }
+
+        else {
+
+            console.error(
+                action.toUpperCase() +
+                " LOAD FAILED:",
+                result.message
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            action.toUpperCase() +
+            " LOAD ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   LOAD STUDENT
+================================================== */
+
+async function loadStudentDocuments(
+    studentId
+) {
+
+    if (!studentId) {
+
+        console.error(
+            "STUDENT ID MISSING"
+        );
+
+        return;
+
+    }
+
+
+    const studentPhoto =
+        document.getElementById(
+            "studentPhoto"
+        );
+
+
+    const studentSignature =
+        document.getElementById(
+            "studentSignature"
+        );
+
+
+    const adminToken =
+        sessionStorage.getItem(
+            "SURYA_ADMIN_TOKEN"
+        );
+
+
+    if (!adminToken) {
+
+        console.warn(
+            "ADMIN TOKEN NOT FOUND."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API +
+                "?action=student" +
+                "&id=" +
+                encodeURIComponent(
+                    studentId
+                ) +
+                "&token=" +
+                encodeURIComponent(
+                    adminToken
+                )
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            !result.student
+        ) {
+
+            console.error(
+                "STUDENT RECORD LOAD FAILED:",
+                result.message
+            );
+
+            return;
+
+        }
+
+
+        const student =
+            result.student;
+
+        currentStudent = student;
+
+
+        console.log(
+            "STUDENT LOADED:",
+            studentId
+        );
+
+
+        /* ==================================================
+           PHOTO
+        ================================================== */
+
+        if (student.Photo) {
+
+            await loadStudentDocument(
+
+                student.Photo,
+
+                studentPhoto,
+
+                "studentPhoto"
+
+            );
+
+        }
+
+
+        /* ==================================================
+           SIGNATURE
+        ================================================== */
+
+        if (student.Signature) {
+
+            await loadStudentDocument(
+
+                student.Signature,
+
+                studentSignature,
+
+                "studentSignature"
+
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "STUDENT LOAD ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* ==================================================
+   LOAD RESULT SUBJECTS FOR BACK PAGE
+================================================== */
+
+async function loadResultSubjects(
+    resultId,
+    certificate
+) {
+
+    const body =
+        document.getElementById(
+            "subjectMarksBody"
+        );
+
+    const summary =
+        document.getElementById(
+            "backSummary"
+        );
+
+    if (!body || !summary) {
+        return;
+    }
+
+    if (!resultId) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="11" class="subject-empty">
+                    Subject marks are not linked to this certificate.
+                </td>
+            </tr>
+        `;
+        summary.textContent =
+            "No Result ID is linked with this certificate.";
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                SURYA_DATABASE_API +
+                "?action=certificateSubjects&resultId=" +
+                encodeURIComponent(resultId)
+            );
+
+        const result =
+            await response.json();
+
+        if (!result.success) {
+            throw new Error(
+                result.message ||
+                "Unable to load subject marks."
+            );
+        }
+
+        const subjects =
+            Array.isArray(result.subjects)
+                ? result.subjects
+                : [];
+
+        if (!subjects.length) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="11" class="subject-empty">
+                        No subject marks found for this result.
+                    </td>
+                </tr>
+            `;
+        } else {
+            body.innerHTML = subjects
+                .map(function(subject, index) {
+
+                    return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="subject-name">
+                                ${escapeHTML(subject["Subject Name"] || "—")}
+                            </td>
+                            <td>${escapeHTML(subject["Max Theory Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Theory Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Max Practical Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Practical Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Total Max Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Obtained Marks"] ?? "0")}</td>
+                            <td>${escapeHTML(subject["Percentage"] ?? "—")}</td>
+                            <td>${escapeHTML(subject["Grade"] || "—")}</td>
+                            <td>${escapeHTML(subject["Result"] || "—")}</td>
+                        </tr>
+                    `;
+                })
+                .join("");
+        }
+
+        const motherName =
+            currentStudent &&
+            currentStudent["Mother Name"]
+                ? currentStudent["Mother Name"]
+                : "—";
+
+        document.getElementById("backMotherName").textContent =
+            motherName;
+
+        document.getElementById("backCertificateId").textContent =
+            certificate["Certificate ID"] || "—";
+
+        document.getElementById("backStudentId").textContent =
+            certificate["Student ID"] || "—";
+
+        document.getElementById("backCourse").textContent =
+            certificate["Course"] || "—";
+
+        document.getElementById("backVerificationCertificateId").textContent =
+            certificate["Certificate ID"] || "—";
+
+        summary.innerHTML =
+            "Overall Result: <strong>" +
+            escapeHTML(
+    certificate["Final Result"] ||
+    certificate["Result"] ||
+    "—"
+) +
+            "</strong> &nbsp; | &nbsp; Percentage: <strong>" +
+            escapeHTML(certificate["Percentage"] ?? "—") +
+            "%</strong> &nbsp; | &nbsp; Grade: <strong>" +
+            escapeHTML(certificate["Grade"] || "—") +
+            "</strong>";
+
+    } catch (error) {
+
+        console.error(
+            "RESULT SUBJECT LOAD ERROR:",
+            error
+        );
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="11" class="subject-empty">
+                    ⚠️ Subject marks could not be loaded.
+                </td>
+            </tr>
+        `;
+
+        summary.textContent =
+            "Result summary could not be loaded.";
+    }
+}
+
+/* ==================================================
+   LOAD CERTIFICATE
+================================================== */
+
+async function loadCertificate() {
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const certificateId =
+        params.get("id");
+
+
+    const content =
+        document.getElementById(
+            "certificateContent"
+        );
+
+
+    if (!certificateId) {
+
+        content.innerHTML = `
+
+            <div class="error-message">
+
+                ❌ Certificate ID not provided.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+
+        /* ==================================================
+           GET CERTIFICATE
+        ================================================== */
+
+        const response =
+            await fetch(
+
+                SURYA_DATABASE_API +
+                "?action=certificate" +
+                "&id=" +
+                encodeURIComponent(
+                    certificateId
+                )
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            !result.certificate
+        ) {
+
+            content.innerHTML = `
+
+                <div class="error-message">
+
+                    ❌ Certificate not found.
+
+                    <br><br>
+
+                    Certificate ID:
+
+                    <strong>
+                        ${escapeHTML(certificateId)}
+                    </strong>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        const certificate =
+            result.certificate;
+
+        currentCertificate = certificate;
+
+
+        /* ==================================================
+           EXACT SHEET HEADERS
+        ================================================== */
+
+        const certificateStudentId =
+            certificate["Student ID"] || "";
+
+
+        const certificateIdValue =
+            certificate["Certificate ID"] ||
+            certificateId;
+
+
+        const studentName =
+            certificate["Student Name"] ||
+            "—";
+
+
+        const fatherName =
+            certificate["Father Name"] ||
+            "—";
+
+
+        const course =
+            certificate["Course"] ||
+            "—";
+
+
+        const totalMarks =
+            certificate["Total Marks"] ??
+            "—";
+
+
+        const obtainedMarks =
+            certificate["Obtained Marks"] ??
+            "—";
+
+
+        const percentage =
+            certificate["Percentage"] ??
+            "—";
+
+
+        const grade =
+            certificate["Grade"] ||
+            "—";
+
+
+        const finalResult =
+            certificate["Final Result"] ||
+            certificate["Result"] ||
+            "—";
+
+
+        const status =
+            certificate["Status"] ||
+            "Verified";
+
+
+        const issueDate =
+            certificate["Issue Date"] ||
+            "—";
+
+
+        const resultId =
+            certificate["Result ID"] ||
+            "";
+
+
+        /* ==================================================
+           LOAD STUDENT PHOTO + SIGNATURE
+        ================================================== */
+
+        await loadStudentDocuments(
+            certificateStudentId
+        );
+
+
+        /* ==================================================
+           BACK PAGE IDENTITY
+        ================================================== */
+
+        const backMotherName =
+            currentStudent &&
+            currentStudent["Mother Name"]
+                ? currentStudent["Mother Name"]
+                : "—";
+
+        document.getElementById("backMotherName").textContent =
+            backMotherName;
+
+        document.getElementById("backCertificateId").textContent =
+            certificateIdValue;
+
+        document.getElementById("backStudentId").textContent =
+            certificateStudentId || "—";
+
+        document.getElementById("backCourse").textContent =
+            course;
+
+        document.getElementById("backExam").textContent =
+            certificate["Exam"] ||
+            certificate["Examination"] ||
+            "—";
+
+        document.getElementById("backVerificationCertificateId").textContent =
+            certificateIdValue;
+
+        await loadResultSubjects(
+            resultId,
+            certificate
+        );
+
+
+        /* ==================================================
+           CERTIFICATE CONTENT
+        ================================================== */
+
+        content.innerHTML = `
+
+            <p>
+
+                This is to certify that
+
+            </p>
+
+
+            <div class="student-name">
+
+                ${escapeHTML(studentName)}
+
+            </div>
+
+
+            <div class="father-name">
+
+                S/o ${escapeHTML(fatherName)}
+
+            </div>
+
+
+            <div class="atc">
+
+                ATC: SURYA COMPUTER OF EDUCATION CENTER
+
+                <br>
+
+                KAMALPUR | CHANDAULI
+
+            </div>
+
+
+            <p>
+
+                has passed the prescribed examination
+
+                with a
+
+                <strong>
+                    Grade ${escapeHTML(grade)}
+                </strong>
+
+                (
+
+                <strong>
+                    ${escapeHTML(percentage)}% Marks
+                </strong>
+
+                )
+
+            </p>
+
+
+            <p>
+
+                has been awarded the
+
+            </p>
+
+
+            <div class="course-name">
+
+                ${escapeHTML(course)}
+
+            </div>
+
+
+            <div class="course-duration">
+
+                (COURSE DURATION: 12 MONTH)
+
+            </div>
+
+
+            <div class="course-period">
+
+                (COURSE PERIOD: — TO —)
+
+            </div>
+
+
+            <div class="result-box">
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Percentage
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(percentage)}%
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Grade
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(grade)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Total Marks
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(totalMarks)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Obtained Marks
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(obtainedMarks)}
+                    </span>
+
+                </div>
+
+
+                <div class="result-item">
+
+                    <span class="result-label">
+                        Result
+                    </span>
+
+                    <span class="result-value">
+                        ${escapeHTML(finalResult)}
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="certificate-details">
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Certificate No.
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(certificateIdValue)}
+                    </span>
+
+                </div>
+
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Date of Issue
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(issueDate)}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Status
+                    </span>
+
+                    <span class="detail-value">
+                        ${escapeHTML(status)}
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="verification">
+
+                Online Certificate Verification available on:
+
+                <br>
+
+                <strong>
+                    SURYA COMPUTER OF EDUCATION CENTER
+                </strong>
+
+                <br>
+
+                Certificate ID:
+
+                <strong>
+                    ${escapeHTML(certificateIdValue)}
+                </strong>
+
+            </div>
+
+        `;
+
+
+        /* ==================================================
+           QR CODE
+        ================================================== */
+
+        const qrContainer =
+            document.getElementById(
+                "qrCode"
+            );
+
+
+        if (
+            qrContainer &&
+            typeof QRCode !== "undefined"
+        ) {
+
+            qrContainer.innerHTML = "";
+
+
+            const verificationUrl =
+                "https://suryacomputer-education.github.io/" +
+                "surya-computer-education/" +
+                "certificate.html?id=" +
+                encodeURIComponent(
+                    certificateIdValue
+                );
+
+
+            new QRCode(
+
+                qrContainer,
+
+                {
+
+                    text:
+                        verificationUrl,
+
+                    width:
+                        74,
+
+                    height:
+                        74,
+
+                    correctLevel:
+                        QRCode.CorrectLevel.H
+
+                }
+
+            );
+
+        }
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "CERTIFICATE LOAD ERROR:",
+            error
+        );
+
+
+        content.innerHTML = `
+
+            <div class="error-message">
+
+                ❌ Certificate loading failed.
+
+                <br><br>
+
+                Please try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ==================================================
+   PAGE LOAD
+================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    function() {
+
+        loadCertificate();
+
+    }
+
+);
+
+</script>
+
+    <script src="assets/js/project-ui.js"></script>
+
+<script src="AERON/config/aeron-config.js"></script>
+<script src="AERON/js/aeron-widget.js" defer></script>
+</body>
+
+</html>
