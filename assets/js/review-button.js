@@ -9,7 +9,7 @@
  * Note: sirf asli students/visitors se review maangein. Review ke badle paisa/gift na dein.
  */
 (function(){
-  var REVIEW_URL = "";   // <-- yahan Google review link paste karein
+  var REVIEW_URL = "https://g.page/r/CfqSKOU9wj37ECE/review";   // <-- yahan Google review link paste karein
 
   var ok = /^https:\/\/(g\.page|g\.co|search\.google\.com|www\.google\.com|maps\.app\.goo\.gl)\//.test(REVIEW_URL);
   if(!ok) return;
